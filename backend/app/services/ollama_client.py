@@ -105,6 +105,13 @@ class OllamaClient:
         if response.status_code >= 400:
             raise OllamaBadResponse(f"Ollama returned HTTP {response.status_code}: {response.text[:200]}")
 
+    async def unload_all(self) -> None:
+        for name in (self.model, self.embed_model):
+            try:
+                await self._post("/api/generate", {"model": name, "keep_alive": 0, "stream": False})
+            except OllamaError as exc:
+                logger.info("ollama_unload_skipped", model=name, error=str(exc)[:120])
+
     async def installed_models(self) -> list[str]:
         try:
             response = await self._client().get(f"{self._base}/api/tags", timeout=5.0)

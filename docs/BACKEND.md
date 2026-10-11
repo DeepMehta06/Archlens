@@ -131,9 +131,10 @@ Batch failures are tolerated: if some batches return invalid JSON the job still 
 `POST /sources/upload` accepts `.txt`/`.md` plus `.pdf`, `.png`, `.jpg`/`.jpeg`, `.webp` and `.wav`. Media files are saved under `ARCHLENS_DATA_DIR/uploads` and transcribed inside the ingestion job (stage `transcribing`); the transcript then goes through the normal chunk, index and extract path.
 
 - **Image**: `gemma4:e4b` vision transcribes visible text line by line (chat screenshots as `Sender: message`); with no text it returns a short factual description.
-- **Audio**: sent to Ollama in the message `images` field (the `audio` field is silently ignored). WAV is split into 25-second segments, each transcribed and joined, because the model accepts only short clips. Maximum 10 minutes. Other audio formats are not accepted because they were not verified.
+- **Audio**: sent to Ollama in the message `images` field (the `audio` field is silently ignored). WAV is split into segments of at most 25 seconds (cut at the quietest 100 ms of the last third of each window so words are not split), each transcribed and joined, because the model accepts only short clips. The prompt asks for one punctuated sentence per line; unpunctuated transcripts become oversized units and break the hedge cross-check. Maximum 10 minutes. Other audio formats are not accepted because they were not verified.
 - **PDF**: text layer through `pypdf` (at most 30 pages); a page with almost no text is rendered with `pypdfium2` and read by vision (at most 10 such pages). Encrypted PDFs are rejected.
 - **Provenance**: evidence from image and audio is stored as `transcript_quote` with the note "Quote is from a model transcript of the uploaded file, not the file itself." `verified` therefore means the quote matches the transcript, not the original media. PDF text-layer evidence stays `text_quote`.
+- If Ollama fails an image or audio call (seen once as an out-of-memory 500 when other models were resident on an 8 GB GPU), the text and embedding models are unloaded and the call is retried once.
 - Nothing readable (or `[no speech]`) fails the job with "No readable text or speech was found in the file."
 - With `analyze=false` a media file is stored but not transcribed until it is analysed.
 

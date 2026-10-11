@@ -1,6 +1,8 @@
 import io
 import wave
 
+import numpy as np
+
 from PIL import Image
 from sqlalchemy import select
 
@@ -109,8 +111,32 @@ async def test_long_audio_is_cut_into_segments_and_joined(env, session_factory):
         assert (await s.execute(select(Source))).scalar_one().raw_text == "Pehla hissa.\nDoosra hissa."
 
 
+def test_split_wav_cuts_in_silence_not_mid_word():
+    rate = 8000
+    loud = (np.ones(rate * 40) * 5000).astype(np.int16)
+    loud[int(rate * 22.0) : int(rate * 22.3)] = 0
+    buffer = io.BytesIO()
+    with wave.open(buffer, "wb") as writer:
+        writer.setnchannels(1)
+        writer.setsampwidth(2)
+        writer.setframerate(rate)
+        writer.writeframes(loud.tobytes())
+
+    first, second = split_wav(buffer.getvalue())
+
+    with wave.open(io.BytesIO(first)) as w:
+        cut_seconds = w.getnframes() / rate
+    assert 22.0 <= cut_seconds <= 22.3
+    with wave.open(io.BytesIO(second)) as w:
+        assert abs(w.getnframes() / rate - (40 - cut_seconds)) < 0.01
+
+
 def test_split_wav_segments_and_rejects_garbage():
-    assert len(split_wav(wav_bytes(60))) == 3
+    segments = split_wav(wav_bytes(60))
+    assert 3 <= len(segments) <= 4
+    for segment in segments:
+        with wave.open(io.BytesIO(segment)) as w:
+            assert w.getnframes() / w.getframerate() <= 25.01
     try:
         split_wav(b"not a wav")
     except MediaError:
@@ -155,3 +181,36 @@ async def test_media_with_no_readable_content_fails_with_a_clear_message(env):
 
     job = (await client.get(f"/api/jobs/{created['job']['id']}")).json()
     assert job["status"] == "failed" and "No readable text" in job["error_message"]
+
+
+async def test_media_call_unloads_models_and_retries_once_on_a_runner_failure():
+    from app.services.media_ingestion import transcribe_image
+    from app.services.ollama_client import OllamaBadResponse
+    from tests.fakes import FakeLLM
+
+    class Flaky(FakeLLM):
+        unloaded = 0
+        failures = 1
+
+        async def chat(self, messages, **kwargs):
+            if self.failures:
+                self.failures -= 1
+                raise OllamaBadResponse("Ollama returned HTTP 500: out of memory")
+            return await super().chat(messages, **kwargs)
+
+        async def unload_all(self):
+            self.unloaded += 1
+
+    llm = Flaky()
+    llm.queue_text("Sender: hello")
+    assert await transcribe_image(llm, b"img") == "Sender: hello"
+    assert llm.unloaded == 1
+
+    llm = Flaky()
+    llm.failures = 2
+    try:
+        await transcribe_image(llm, b"img")
+    except OllamaBadResponse:
+        assert llm.unloaded == 1
+        return
+    raise AssertionError("second failure should propagate")

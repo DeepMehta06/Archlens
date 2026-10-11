@@ -10,9 +10,11 @@ import wave
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import structlog
 
 from app.enums import EvidenceKind, SourceType
+from app.services.ollama_client import OllamaError
 
 logger = structlog.get_logger()
 
@@ -33,12 +35,27 @@ IMAGE_PROMPT = (
 )
 AUDIO_PROMPT = (
     "Transcribe this audio exactly as spoken, in the original language (Hindi or English words may be mixed; "
-    "write Hindi in Roman script). Output only the transcript. If there is no speech, reply with '[no speech]'."
+    "write Hindi in Roman script). Write proper sentences with punctuation and put each sentence on its own line. "
+    "Output only the transcript. If there is no speech, reply with '[no speech]'."
 )
 
 
 class MediaError(ValueError):
     pass
+
+
+async def _chat_with_media(llm: Any, messages: list[dict[str, Any]], **kwargs: Any) -> Any:
+    """Image and audio calls need Ollama to load the multimodal projector next to the text model.
+    On a small GPU that can fail while the text and embedding models are resident, so free them and retry once."""
+    try:
+        return await llm.chat(messages, **kwargs)
+    except OllamaError as exc:
+        unload = getattr(llm, "unload_all", None)
+        if unload is None:
+            raise
+        logger.warning("media_call_failed_retrying_after_unload", error=str(exc)[:200])
+        await unload()
+        return await llm.chat(messages, **kwargs)
 
 
 def source_type_for(extension: str) -> SourceType | None:
@@ -58,7 +75,8 @@ def evidence_kind_for(source_type: SourceType) -> EvidenceKind:
 
 
 async def transcribe_image(llm: Any, data: bytes) -> str:
-    result = await llm.chat(
+    result = await _chat_with_media(
+        llm,
         [{"role": "user", "content": IMAGE_PROMPT}],
         media=[data],
         temperature=0.0,
@@ -69,32 +87,60 @@ async def transcribe_image(llm: Any, data: bytes) -> str:
     return result.content.strip()
 
 
+def _quietest_cut(samples, rate: int, start: int, end: int) -> int:
+    window = max(rate // 10, 1)
+    best, best_energy = end, None
+    for position in range(start, end - window, window):
+        energy = float(np.mean(np.abs(samples[position : position + window].astype(np.int32))))
+        if best_energy is None or energy < best_energy:
+            best, best_energy = position + window // 2, energy
+    return best
+
+
 def split_wav(data: bytes, segment_seconds: int = SEGMENT_SECONDS) -> list[bytes]:
+    """Cut at the quietest 100 ms in the last third of each window so words are not split mid-way."""
     try:
         with wave.open(io.BytesIO(data)) as reader:
             params = reader.getparams()
-            frames_per_segment = params.framerate * segment_seconds
             if params.nframes / params.framerate > MAX_AUDIO_SECONDS:
                 raise MediaError(f"Audio is longer than {MAX_AUDIO_SECONDS // 60} minutes.")
-            segments: list[bytes] = []
-            while True:
-                frames = reader.readframes(frames_per_segment)
-                if not frames:
-                    break
-                buffer = io.BytesIO()
-                with wave.open(buffer, "wb") as writer:
-                    writer.setparams(params)
-                    writer.writeframes(frames)
-                segments.append(buffer.getvalue())
-            return segments
+            frames = reader.readframes(params.nframes)
     except wave.Error as exc:
         raise MediaError(f"Could not read the WAV file: {exc}") from exc
+
+    rate, channels, width = params.framerate, params.nchannels, params.sampwidth
+    frame_bytes = channels * width
+    total = len(frames) // frame_bytes
+    limit = rate * segment_seconds
+    mono = None
+    if width == 2:
+        mono = np.frombuffer(frames, dtype=np.int16).reshape(-1, channels)[:, 0]
+
+    cuts, position = [0], 0
+    while total - position > limit:
+        end = position + limit
+        cut = _quietest_cut(mono, rate, position + limit * 2 // 3, end) if mono is not None else end
+        cuts.append(cut)
+        position = cut
+    cuts.append(total)
+
+    segments: list[bytes] = []
+    for left, right in zip(cuts, cuts[1:]):
+        if right <= left:
+            continue
+        buffer = io.BytesIO()
+        with wave.open(buffer, "wb") as writer:
+            writer.setparams(params)
+            writer.writeframes(frames[left * frame_bytes : right * frame_bytes])
+        segments.append(buffer.getvalue())
+    return segments
 
 
 async def transcribe_audio(llm: Any, data: bytes) -> str:
     parts: list[str] = []
     for segment in split_wav(data):
-        result = await llm.chat(
+        result = await _chat_with_media(
+            llm,
             [{"role": "user", "content": AUDIO_PROMPT}],
             media=[segment],
             temperature=0.0,
