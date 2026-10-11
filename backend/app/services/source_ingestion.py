@@ -4,7 +4,9 @@ The pipeline never reports success it did not achieve: a failure marks the sourc
 job failed with a readable message. If embeddings are unavailable the source is still
 indexed for BM25 and the job result says retrieval is degraded.
 """
+import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Optional
 
 from sqlalchemy import select
@@ -28,6 +30,7 @@ from app.services.extraction import (
 )
 from app.services.jobs import update_job
 from app.services.ollama_client import OllamaBadResponse, OllamaError
+from app.services.media_ingestion import MediaError, evidence_kind_for, media_to_text
 from app.services.whatsapp_parser import ParsedChat, parse_whatsapp
 
 logger = get_logger(__name__)
@@ -75,6 +78,35 @@ async def create_text_source(
         mime_type=mime_type or "text/plain",
         raw_text=text,
         metadata_json=_chat_metadata(chat, me) if chat else {"me": me},
+        status=SourceStatus.UPLOADED,
+    )
+    session.add(source)
+    await session.flush()
+    return source
+
+
+async def create_media_source(
+    session: AsyncSession,
+    project: Project,
+    data: bytes,
+    *,
+    source_type: SourceType,
+    filename: str,
+    mime_type: Optional[str] = None,
+) -> Source:
+    settings = get_settings()
+    settings.uploads_dir.mkdir(parents=True, exist_ok=True)
+    suffix = Path(filename).suffix.lower()
+    path = settings.uploads_dir / f"{uuid.uuid4().hex}{suffix}"
+    path.write_bytes(data)
+    source = Source(
+        project_id=project.id,
+        source_type=source_type,
+        label=filename,
+        filename=filename,
+        mime_type=mime_type,
+        file_path=str(path),
+        metadata_json={"me": project.my_name, "transcribed": True},
         status=SourceStatus.UPLOADED,
     )
     session.add(source)
@@ -153,6 +185,18 @@ async def process_source(
                 raise ValueError("Source not found.")
             source.status = SourceStatus.PROCESSING
             await session.commit()
+            source_type = source.source_type
+            needs_transcript = source_type in (SourceType.IMAGE, SourceType.AUDIO, SourceType.PDF) and not source.raw_text
+            media_path = source.file_path
+
+        if needs_transcript:
+            await update_job(session_factory, job_id, stage="transcribing", progress=10)
+            transcript, extra = await media_to_text(llm, source_type, Path(media_path))
+            async with session_factory() as session:
+                source = await session.get(Source, source_id)
+                source.raw_text = transcript
+                source.metadata_json = {**(source.metadata_json or {}), **extra, "transcript_model": llm.model}
+                await session.commit()
 
         async with session_factory() as session:
             source = await session.get(Source, source_id)
@@ -205,6 +249,7 @@ async def process_source(
                         chunks=batch,
                         output=output,
                         roles=roles,
+                        evidence_kind=evidence_kind_for(source_type),
                     )
                 )
                 await session.commit()
@@ -226,7 +271,7 @@ async def process_source(
         await update_job(
             session_factory, job_id, status=JobStatus.COMPLETED, stage="complete", progress=100, result=result
         )
-    except (OllamaError, ValueError) as exc:
+    except (OllamaError, ValueError, MediaError) as exc:
         await _fail(session_factory, source_id, job_id, str(exc))
     except Exception:
         logger.exception("ingestion_failed", source_id=source_id)

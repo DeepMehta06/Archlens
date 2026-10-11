@@ -278,10 +278,10 @@ async def test_upload_accepts_text_and_rejects_other_types_and_oversized_files(e
     assert ok.status_code == 201 and ok.json()["source"]["source_type"] == "whatsapp"
     assert ok.json()["job"]["status"] in ("queued", "completed")
 
-    png = await client.post(
-        f"/api/projects/{project_id}/sources/upload", files={"file": ("a.png", b"\x89PNG", "image/png")}
+    docx = await client.post(
+        f"/api/projects/{project_id}/sources/upload", files={"file": ("a.docx", b"PK", "application/octet-stream")}
     )
-    assert png.status_code == 415
+    assert docx.status_code == 415
 
     monkeypatch.setattr(get_settings(), "MAX_UPLOAD_BYTES", 10)
     big = await client.post(

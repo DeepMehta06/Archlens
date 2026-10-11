@@ -12,7 +12,14 @@ from app.models import Job, Source, SourceChunk
 from app.schemas import ChunkOut, JobOut, SourceCreated, SourceOut, SourceTextCreate, SourceUpdate
 from app.services.embeddings import EmbeddingService
 from app.services.jobs import create_job
-from app.services.source_ingestion import apply_me, create_text_source, decode_upload, process_source
+from app.services.media_ingestion import source_type_for
+from app.services.source_ingestion import (
+    apply_me,
+    create_media_source,
+    create_text_source,
+    decode_upload,
+    process_source,
+)
 
 router = APIRouter(prefix="/api", tags=["sources"])
 
@@ -83,10 +90,11 @@ async def upload_source(
     settings = get_settings()
     name = file.filename or "upload"
     extension = "." + name.rsplit(".", 1)[-1].lower() if "." in name else ""
-    if extension not in TEXT_EXTENSIONS:
+    media_type = source_type_for(extension)
+    if extension not in TEXT_EXTENSIONS and media_type is None:
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="Only .txt and .md files are supported right now. Image and audio import are not enabled yet.",
+            detail="Supported files: .txt, .md, .pdf, .png, .jpg, .jpeg, .webp and .wav.",
         )
     data = await file.read(settings.MAX_UPLOAD_BYTES + 1)
     if len(data) > settings.MAX_UPLOAD_BYTES:
@@ -94,6 +102,11 @@ async def upload_source(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail=f"File exceeds the {settings.MAX_UPLOAD_BYTES // (1024 * 1024)} MB limit.",
         )
+    if media_type is not None:
+        source = await create_media_source(
+            session, project, data, source_type=media_type, filename=name[:255], mime_type=file.content_type
+        )
+        return await _start(background, session, factory, llm, embedder, source, analyze)
     text = decode_upload(data)
     if not text.strip():
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="The file is empty.")
