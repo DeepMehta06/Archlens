@@ -88,6 +88,7 @@ class RouterOutput(BaseModel):
         "create_diagram",
         "compare_request",
         "open_questions",
+        "general_reasoning",
         "off_topic",
     ]
     query: Optional[str] = None

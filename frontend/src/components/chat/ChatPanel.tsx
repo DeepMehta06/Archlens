@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 
 const STAGE_LABEL: Record<string, string> = {
   routing: 'Reading your message',
+  thinking: 'Thinking…',
   searching: 'Searching the evidence',
   reformulating: 'Refining the search',
   writing: 'Writing a reply',

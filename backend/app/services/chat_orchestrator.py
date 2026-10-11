@@ -147,6 +147,68 @@ def _item_card(item: LedgerItem, open_questions: int) -> dict[str, Any]:
     }
 
 
+async def _general_reasoning(
+    deps: ChatDeps,
+    session: AsyncSession,
+    project: Project,
+    message: str,
+    history: list[dict[str, str]],
+    state: TurnState,
+) -> AsyncIterator[dict[str, Any]]:
+    """Answer broad / meta questions using a project summary instead of retrieval."""
+    yield {"type": "status", "stage": "thinking"}
+
+    # Build a concise project summary for context
+    item_rows = list(
+        (await session.execute(
+            select(LedgerItem).where(
+                LedgerItem.project_id == project.id,
+                LedgerItem.active.is_(True),
+            )
+        )).scalars()
+    )
+    approved = sum(i.approval_status == ApprovalStatus.APPROVED for i in item_rows)
+    needs_review = sum(i.approval_status == ApprovalStatus.NEEDS_REVIEW for i in item_rows)
+    rejected = sum(i.approval_status == ApprovalStatus.REJECTED for i in item_rows)
+
+    type_counts: dict[str, int] = {}
+    for i in item_rows:
+        t = i.item_type.value if hasattr(i.item_type, "value") else str(i.item_type)
+        type_counts[t] = type_counts.get(t, 0) + 1
+
+    open_q = await _open_questions(session, project.id)
+    snapshot_rows = list(
+        (await session.execute(
+            select(ScopeSnapshot).where(ScopeSnapshot.project_id == project.id)
+        )).scalars()
+    )
+
+    summary_parts = [
+        f"Project name: {project.name}",
+        f"Description: {project.description or 'not set'}",
+        f"Ledger items: {len(item_rows)} total ({approved} approved, {needs_review} awaiting review, {rejected} rejected)",
+        f"Item types: {', '.join(f'{v} {k}' for k, v in type_counts.items()) or 'none yet'}",
+        f"Open questions: {len(open_q)}",
+        f"Scope snapshots: {len(snapshot_rows)}",
+    ]
+    # Include a few item titles for flavour
+    if item_rows:
+        sample = item_rows[:10]
+        summary_parts.append("Sample ledger items: " + "; ".join(f"{i.title} ({i.item_type.value})" for i in sample))
+
+    project_summary = "\n".join(summary_parts)
+
+    messages = [
+        {"role": "system", "content": load_prompt("general_reasoning")},
+        *history,
+        {"role": "user", "content": f"PROJECT SUMMARY:\n{project_summary}\n\nQUESTION: {message}"},
+    ]
+    async for delta in deps.llm.stream_chat(messages, think=False, temperature=0.3):
+        yield {"type": "token", "text": delta}
+        state.text += delta
+    state.grounded = True
+
+
 async def _answer(
     deps: ChatDeps,
     session: AsyncSession,
@@ -253,6 +315,10 @@ async def _dispatch(
 
     if routed.intent == "off_topic":
         yield _say(state, OFF_TOPIC_REPLY)
+
+    elif routed.intent == "general_reasoning":
+        async for event in _general_reasoning(deps, session, project, message, history, state):
+            yield event
 
     elif routed.intent == "answer_question":
         async for event in _answer(deps, session, project.id, message, routed.query or message, history, state):
