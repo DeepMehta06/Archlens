@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/archlens-logo.png" alt="ArchLens" width="340" />
+  <img src="assets/archlens-logo_1.png" alt="ArchLens" width="340" />
 </p>
 
 <h3 align="center">Every scope decision has a receipt.</h3>
