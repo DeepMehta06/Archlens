@@ -16,7 +16,7 @@ const TABS = [
 
 export function WorkspacePanel({ projectId }: { projectId: string }) {
   return (
-    <aside className="flex h-full w-80 shrink-0 flex-col border-l border-border/70 bg-background/40 xl:w-96">
+    <aside className="flex h-full w-80 shrink-0 flex-col overflow-hidden border-l border-border/70 bg-background/40 xl:w-96">
       <Tabs defaultValue="ledger" className="flex h-full flex-col gap-0">
         <div className="px-3 pt-3">
           <TabsList className="w-full">

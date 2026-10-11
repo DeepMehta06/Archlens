@@ -38,7 +38,7 @@ export function DiagramsTab({ projectId }: { projectId: string }) {
   });
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       <div className="flex flex-col gap-2 border-b border-border/70 p-3">
         <Select value={diagramType} onValueChange={(v) => setDiagramType(v as DiagramType)}>
           <SelectTrigger size="sm" className="w-full">
@@ -59,7 +59,7 @@ export function DiagramsTab({ projectId }: { projectId: string }) {
         </Button>
       </div>
 
-      <ScrollArea className="flex-1 px-3 py-3">
+      <ScrollArea className="min-h-0 flex-1 overflow-hidden px-3 py-3">
         {isLoading && (
           <div className="flex items-center gap-2 px-1 py-3 text-xs text-ink-soft">
             <Loader2 className="size-3.5 animate-spin" />

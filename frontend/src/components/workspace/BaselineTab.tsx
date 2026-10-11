@@ -43,7 +43,7 @@ export function BaselineTab({ projectId }: { projectId: string }) {
   };
 
   return (
-    <ScrollArea className="h-full px-3 py-3">
+    <ScrollArea className="min-h-0 h-full overflow-hidden px-3 py-3">
       <div className="flex flex-col gap-4">
         <div className="rounded-lg border border-border bg-background/60 p-3">
           <p className="flex items-center gap-1.5 text-sm font-medium text-ink">

@@ -26,7 +26,7 @@ export function LedgerTab({ projectId }: { projectId: string }) {
   });
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       <div className="flex gap-2 px-3 pt-3">
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as ApprovalStatus | typeof ALL)}>
           <SelectTrigger size="sm" className="flex-1">
@@ -53,7 +53,7 @@ export function LedgerTab({ projectId }: { projectId: string }) {
         </Select>
       </div>
 
-      <ScrollArea className="flex-1 px-3 py-3">
+      <ScrollArea className="min-h-0 flex-1 overflow-hidden px-3 py-3">
         {isLoading && (
           <div className="flex items-center gap-2 px-1 py-3 text-xs text-ink-soft">
             <Loader2 className="size-3.5 animate-spin" />
@@ -66,10 +66,10 @@ export function LedgerTab({ projectId }: { projectId: string }) {
             const approval = approvalBadge(item.approval_status);
             const evidence = evidenceBadge(item.evidence_status);
             return (
-              <li key={item.id}>
+              <li key={item.id} className="min-w-0 w-full">
                 <button
                   onClick={() => setOpenItemId(item.id)}
-                  className="w-full overflow-hidden rounded-lg border border-border bg-background/60 p-2.5 text-left transition-colors hover:border-brand/40"
+                  className="block w-full overflow-hidden rounded-lg border border-border bg-background/60 p-2.5 text-left transition-colors hover:border-brand/40"
                 >
                   <div className="flex items-center gap-2">
                     <span className="font-mono-id rounded bg-canvas-deep px-1.5 py-0.5 text-[0.7rem] text-ink-soft">{item.display_id}</span>

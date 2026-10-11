@@ -42,7 +42,7 @@ export function AppShell({ project }: { project: Project }) {
       </header>
 
       <div className="flex min-h-0 flex-1">
-        <div className="hidden lg:flex">
+        <div className="hidden h-full min-h-0 lg:flex">
           <SourcesRail projectId={project.id} />
         </div>
         <Sheet open={railOpen} onOpenChange={setRailOpen}>
@@ -53,7 +53,7 @@ export function AppShell({ project }: { project: Project }) {
 
         <ChatPanel projectId={project.id} onSourceAdded={handleSourceAdded} />
 
-        <div className="hidden xl:flex">
+        <div className="hidden h-full min-h-0 xl:flex">
           <WorkspacePanel projectId={project.id} />
         </div>
         <Sheet open={panelOpen} onOpenChange={setPanelOpen}>
