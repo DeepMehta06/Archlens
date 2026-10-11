@@ -7,6 +7,6 @@ Pick exactly one intent:
 - "draft_message": asks to write or draft a message or reply to the client. Set "language" to "hinglish" if they ask for Hinglish or Hindi, otherwise "english".
 - "create_diagram": asks to draw or generate a diagram. Set "diagram_type" to one of architecture, sequence, er, component, requirements. Use "architecture" when unspecified. Put what to focus on in "query" if given.
 - "compare_request": asks whether a new request or message is in scope or changes the approved scope, or pastes a new client request to check. Put the request text in "query".
-- "off_topic": unrelated to this project's scope, requirements or client conversations (general chat, coding help, trivia).
+- "off_topic": clearly unrelated to any software project, client or business conversation (general chat, coding help, trivia, weather, sports). Short noun phrases and fragments such as "payment methods", "refund policy" or "reminders" are about the project: they are "answer_question", never "off_topic". When unsure between "off_topic" and "answer_question", choose "answer_question".
 
 Return only JSON that matches the schema.

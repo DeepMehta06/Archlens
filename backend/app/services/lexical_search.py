@@ -15,6 +15,13 @@ from app.models import LedgerItem, SourceChunk
 
 _TOKEN = re.compile(r"[\wऀ-ॿ]+", re.UNICODE)
 MAX_QUERY_TOKENS = 24
+STOPWORDS = frozenset(
+    """a an the is are was were be been am do does did doing has have had will would can could should shall may might
+    what which who whom whose when where why how this that these those it its of in on at to for from by with about
+    into over and or but if then than as so not no any all some there their they them we us you your our i me my he she
+    his her did hai hain tha thi the ka ki ke ko se me mein pe par kya kaise kab kahan kaun kyun aur ya bhi to toh
+    ye yeh wo woh is us isme usme hoga hogi honge karna kare kar kiya karne wala wali wale""".split()
+)
 
 
 def build_match_query(query: str) -> Optional[str]:
@@ -22,6 +29,8 @@ def build_match_query(query: str) -> Optional[str]:
     for token in _TOKEN.findall(query.casefold()):
         if (len(token) >= 2 or token.isdigit()) and token not in tokens:
             tokens.append(token)
+    meaningful = [t for t in tokens if t not in STOPWORDS]
+    tokens = meaningful or tokens
     if not tokens:
         return None
     return " OR ".join(f'"{t}"' for t in tokens[:MAX_QUERY_TOKENS])

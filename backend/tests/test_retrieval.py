@@ -133,8 +133,14 @@ async def test_hostile_query_syntax_is_neutralised(session):
     for query in ['refund" OR "x', "NEAR(a b)", "*", "refund AND NOT", ""]:
         await lexical_search.search_chunks(session, project.id, query)
 
-    assert lexical_search.build_match_query('refund" OR "x') == '"refund" OR "or"'
+    assert lexical_search.build_match_query('refund" OR "x') == '"refund"'
     assert lexical_search.build_match_query("***") is None
+
+
+def test_function_words_are_dropped_but_never_leave_an_empty_query():
+    assert lexical_search.build_match_query("what is the refund rule") == '"refund" OR "rule"'
+    assert lexical_search.build_match_query("refund ka kya rule hai") == '"refund" OR "rule"'
+    assert lexical_search.build_match_query("what is the") == '"what" OR "is" OR "the"'
 
 
 async def test_hit_carries_source_label_and_location(session):

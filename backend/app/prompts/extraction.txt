@@ -11,6 +11,8 @@ Extract every requirement, constraint, decision or assumption that the text real
 - item_type: "requirement" is something the system must do. "constraint" is a deadline, budget, platform or limit. "decision" is a choice already made. "assumption" is taken for granted but not confirmed.
 - title: 3 to 8 words. description: one clear English sentence.
 - risk_level: "high" when it involves money, security, legal or compliance, or is vague and large. Otherwise "medium" or "low".
+- Do not omit a statement just because the client is unsure: an idea the client floated but has not decided (for example "maybe later", "nothing is decided", "shayad baad mein dekhenge") still becomes an item with evidence_status "tentative". If the client said the topic is undecided or still to be decided, ALSO add a question for it.
+- When a later message changes or reverses an earlier one, extract only the final version and do not extract the superseded one.
 - Do not turn suggestions, questions or hypotheticals into explicit requirements.
 - Messages from "you" may only be suggestions. Extract them only when the client agreed.
 - One idea per item. Do not repeat an item. Do not claim the client approved anything.
