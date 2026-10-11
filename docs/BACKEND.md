@@ -16,7 +16,7 @@ Technical documentation for backend v0.2. For the API contract aimed at UI work 
 | Web | FastAPI, Pydantic v2, server-sent events for chat |
 | Storage | SQLite (WAL, `foreign_keys=ON`, `busy_timeout`), async SQLAlchemy 2 with aiosqlite |
 | Lexical search | SQLite FTS5 (BM25), Devanagari combining marks added via `tokenchars` |
-| Dense search | EmbeddingGemma through Ollama `/api/embed`, vectors stored as JSON, NumPy brute-force cosine (adequate at project scale; no ANN index) |
+| Dense search | EmbeddingGemma through Ollama `/api/embed`, vectors stored as JSON; exact NumPy brute-force cosine below `ANN_MIN_VECTORS` (default 500) per project, an in-memory HNSW index (`hnswlib`) above it, rebuilt when the embedded chunk set changes, falling back to brute force if the library is absent or a build/query fails |
 | Fusion | Reciprocal Rank Fusion, `k = 60`, ranks only (scores from the two systems are not comparable), dense channel weight `RRF_DENSE_WEIGHT=2.0` |
 | LLM | `gemma4:e4b` through Ollama `/api/chat` with JSON-schema `format`, `think:false`, explicit `num_ctx` and `num_predict` |
 | Logging | structlog; private message content is not logged unless `LOG_SENSITIVE_CONTENT=true` |
@@ -35,11 +35,12 @@ backend/
     enums.py           shared enums
     deps.py            dependency providers (tests override these)
     api/               thin route modules, no business logic
+    rate_limit.py      shared slowapi Limiter: app-wide default plus a stricter limit on LLM-cost routes
     services/          all behaviour (below)
-    prompts/*.txt      model prompts: extraction, router, answer, change_detection, draft_message, diagram_spec
+    prompts/*.txt      model prompts: extraction, router, answer, change_detection, draft_message, diagram_spec, reformulate_query
     demo/              labelled demo chat and an example incoming request
   scripts/check_setup.py   preflight: FTS5, Ollama, models, schema-constrained smoke test, tokens/s
-  tests/                   90 tests, model faked
+  tests/                   93 tests, model faked
   evals/                   live evaluation harness (see EVALUATION.md)
 ```
 
@@ -56,13 +57,13 @@ backend/
 | `evidence_verification.py` | Rebuilds quotes from stored units and checks free-text phrases with whitespace-normalised exact matching. |
 | `hedging.py` | English, Hinglish and Devanagari hedge lexicon. A hedged statement cannot remain `explicit`. |
 | `ledger.py` | Display ids (`REQ-1`), duplicate merge by lightly stemmed token Jaccard (threshold 0.75), item serialisation. |
-| `lexical_search.py` / `embeddings.py` / `rrf.py` / `hybrid_retrieval.py` | Retrieval (section 6). |
+| `lexical_search.py` / `embeddings.py` / `ann_index.py` / `rrf.py` / `hybrid_retrieval.py` | Retrieval (section 6). |
 | `snapshots.py` | Immutable baselines from approved items. |
 | `change_detection.py` | Classifies an incoming request against a snapshot (section 7). |
 | `draft_message.py` | English or Hinglish client message covering open questions. |
 | `diagrams.py` / `mermaid_generator.py` | Model fills a structured spec, code compiles Mermaid (section 8). |
 | `export_service.py` | Markdown scope brief. |
-| `chat_orchestrator.py` | Router, dispatch, grounded answers, SSE events (section 9). |
+| `chat_orchestrator.py` | Router, dispatch, grounded answers, one bounded query-reformulation retry, SSE events (section 9). |
 | `jobs.py` | Job bookkeeping in short independent transactions so polling sees live progress. |
 
 ## 4. Data model
@@ -143,16 +144,21 @@ Batch failures are tolerated: if some batches return invalid JSON the job still 
 ```mermaid
 flowchart LR
   Q["query"] --> B["FTS5 BM25 top 10"]
-  Q --> D["embed query, cosine over project chunks, top 10"]
+  Q --> D["embed query"]
+  D --> N{"chunks >= ANN_MIN_VECTORS?"}
+  N -- no --> X["exact brute-force cosine, top 10"]
+  N -- yes --> H["HNSW ANN search, top 10"]
   B --> F["RRF k=60"]
-  D --> F
+  X --> F
+  H --> F
   F --> R["top_k hits with bm25_rank and dense_rank"]
 ```
 
 - Function words (English and Hinglish) are dropped from the BM25 query unless that would empty it. The dense channel is weighted 2x in fusion because paraphrased queries are where lexical match is weakest (measured in EVALUATION.md).
 - Always filtered by `project_id`. Queries are sanitised into quoted FTS tokens (at most 24), so user input cannot inject FTS syntax.
 - EmbeddingGemma prompts follow Google's published retrieval templates: queries `task: search result | query: `, documents `title: none | text: `. Ollama's template for the model is raw, so the app adds the prefixes. Both are configurable.
-- Vectors are L2-normalised. Brute-force cosine is exact and fast at this scale; it would need an index only for very large projects.
+- Vectors are L2-normalised. Brute-force cosine is exact and is what runs below `ANN_MIN_VECTORS` chunks per project (default 500) -- at that scale it is already faster than the ANN build would be.
+- Above the threshold, `ann_index.py` keeps one HNSW graph per project in process memory (`hnswlib`, cosine space, `ANN_M`/`ANN_EF_CONSTRUCTION`/`ANN_EF_SEARCH`), rebuilt whenever the embedded chunk id set for that project changes (a plain equality check against the ids just fetched, so staleness is never silently served). It is approximate and purely a speed optimisation: any failure to import, build or query it falls back to the same exact brute-force cosine, never a different answer path. Disable with `ANN_ENABLED=false`.
 - Availability of the embed model is cached for 30 s. If embedding fails mid-request the service marks itself unavailable and the response reports `bm25_only`.
 - Ledger items are indexed separately (`item_fts`) and searched with BM25 so chat can cite `[L#]` markers.
 
@@ -189,14 +195,17 @@ flowchart TB
 
 - Intent is chosen by the model under a JSON schema; if the router output is unusable the turn falls back to `answer_question`. The prompt biases ambiguous short fragments toward `answer_question` (see EVALUATION.md for the measured effect).
 - **Grounded answers**: passages (up to 6 chunks and 4 ledger items) are numbered `[C1]..`/`[L1]..`; the answer streams token by token; markers are validated against what was supplied; unknown markers are stripped (`replace` event); if no valid marker remains the turn is flagged `grounded:false`. If retrieval finds nothing the assistant says so without calling the model.
+- **Query reformulation (bounded re-planning)**: if the first retrieval for `answer_question` returns nothing at all (no chunks, no ledger items), the orchestrator makes one schema-constrained call (`ReformulateOutput`, prompt `reformulate_query.txt`) asking the model for a differently-phrased search query, and retries retrieval once with it (`MAX_QUERY_REFORMULATIONS = 1`, a hard cap, not a loop the model can extend). The model can only ever propose a search string -- it goes through the exact same FTS sanitisation and embedding path as any other query, and the downstream generation/citation-validation step is completely unchanged. If the model gives up, proposes the same query again, or returns invalid JSON, the turn falls through to the existing honest "couldn't find anything" reply.
 - Chat can read, draft, draw and compare, but it cannot approve, reject or snapshot.
 - Each assistant message stores its `citations_json` and `cards_json` so history re-renders identically.
 
-Events: `thread`, `status`, `token`, `replace`, `card`, `citations`, `error`, `done` (formats in FRONTEND_HANDOFF.md).
+Events: `thread`, `status` (stages: `routing`, `searching`, `reformulating`, `writing`, `drawing`, `comparing`, `drafting`), `token`, `replace`, `card`, `citations`, `error`, `done` (formats in FRONTEND_HANDOFF.md).
 
 ## 10. Configuration
 
 See the table in the README. Notable: `OLLAMA_THINK=false` is required in practice because Gemma 4 is a thinking model and can exhaust `num_predict` before emitting JSON. `OLLAMA_NUM_CTX=16384` fits the extraction batches; raising it increases VRAM use.
+
+New in this revision: `ANN_ENABLED`, `ANN_MIN_VECTORS`, `ANN_M`, `ANN_EF_CONSTRUCTION`, `ANN_EF_SEARCH` (section 6); `RATE_LIMIT_ENABLED`, `RATE_LIMIT_DEFAULT` (app-wide), `RATE_LIMIT_LLM` (the stricter per-IP limit on `POST /sources`, `/sources/upload`, `/chat`, `/diagrams`, `/compare`, `/draft-message` -- the routes that call Gemma). Tests run with `RATE_LIMIT_ENABLED=false` (set in `conftest.py`) since the HTTP test suite fires far more than the default LLM limit at these routes in one process.
 
 ## 11. Operations
 
@@ -204,13 +213,13 @@ See the table in the README. Notable: `OLLAMA_THINK=false` is required in practi
 cd backend
 python -m scripts.check_setup          # preflight with a schema-constrained smoke test
 uvicorn app.main:app --port 8000       # docs at /docs
-pytest                                 # 90 tests, no Ollama needed
+pytest                                 # 93 tests, no Ollama needed
 python -m evals.run_evals              # live evaluation, needs Ollama with both models
 ```
 
 - Data lives in `ARCHLENS_DATA_DIR` (SQLite file and uploads). It is git-ignored. If that folder is inside a synced directory such as OneDrive it will sync, so keep it outside for sensitive client data.
 - Schema creation uses `create_all`; there is no migration tool yet. Changing a model means recreating the database.
-- Single-process, single-user: no authentication, no rate limiting.
+- Single-process, single-user: no authentication. Per-IP rate limiting exists (`rate_limit.py`, section 10) but is not a substitute for auth -- it bounds abuse of local Ollama calls, it does not gate access.
 
 ## 12. Testing strategy
 
@@ -229,4 +238,6 @@ The unit and API tests use `FakeLLM` and `FakeEmbedder`, so they prove the logic
 - Extraction can miss items and the router is not guaranteed; see EVALUATION.md for the measured rates and the small size of the test sets.
 - Duplicate detection is lexical, so paraphrased duplicates may remain separate.
 - Hinglish drafts can mix English.
-- No migrations, auth, background worker queue (jobs run in FastAPI background tasks within the server process), or ANN index.
+- No migrations, auth, or background worker queue (jobs run in FastAPI background tasks within the server process).
+- The ANN index is per-process memory only: it is not persisted and is rebuilt (from the embeddings already in SQLite) the first time a project crosses `ANN_MIN_VECTORS` after a restart, and again whenever that project's embedded chunk set changes.
+- Query reformulation retries at most once and only reformulates the search query, never the final answer; it does not help when retrieval found something but it was the wrong thing (that failure mode is still just `grounded:false`).

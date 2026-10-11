@@ -38,6 +38,8 @@ Layout decided with the user: chat-first. Chat in the centre, workspace panel on
 
 ## Endpoints
 
+The six routes that call Gemma (`sources` create/upload, `chat`, `diagrams`, `compare`, `draft-message`) are rate-limited per client IP (`RATE_LIMIT_LLM`, default 10/minute); everything else defaults to 60/minute. A limit hit returns `429` with body `{"error": "Rate limit exceeded: ..."}` -- note the key is `error`, not the `detail` shape every other error response uses, so handle 429 as its own case.
+
 | Method | Path | Notes |
 |---|---|---|
 | GET | `/health` | `{status, version, ollama_reachable, model, model_installed, embed_model, embed_model_installed, retrieval_mode ("hybrid"/"bm25_only"), fts5, privacy, error}`. Use for a status pill. |
@@ -74,7 +76,7 @@ Errors: Ollama problems come back as a structured error from the `OllamaError` h
 | type | payload | UI |
 |---|---|---|
 | `thread` | `thread_id`, `user_message_id` | keep `thread_id` and send it on later turns |
-| `status` | `stage`: routing, searching, writing, drafting, drawing, comparing (writing also has `retrieval_mode`) | typing/progress indicator with the stage name |
+| `status` | `stage`: routing, searching, reformulating, writing, drafting, drawing, comparing (writing also has `retrieval_mode`) | typing/progress indicator with the stage name |
 | `token` | `text` | append to the assistant bubble |
 | `replace` | `text` | replace the whole bubble text (citation markers were cleaned) |
 | `card` | `card` (see below) | render a rich card under the message |
