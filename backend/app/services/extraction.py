@@ -5,6 +5,7 @@ text, verifies it, lowers certainty when a hedge is present, merges duplicates w
 losing evidence, and drops items whose evidence cannot be resolved. Items always enter
 the ledger as ``needs_review`` regardless of what the model says.
 """
+import re
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
@@ -40,6 +41,7 @@ class ExtractionStats:
     questions_created: int = 0
     hedge_downgrades: int = 0
     dropped_items: list[dict[str, str]] = field(default_factory=list)
+    questions_from_hedges: int = 0
 
     def merge(self, other: "ExtractionStats") -> None:
         self.items_created += other.items_created
@@ -47,6 +49,7 @@ class ExtractionStats:
         self.questions_created += other.questions_created
         self.hedge_downgrades += other.hedge_downgrades
         self.dropped_items.extend(other.dropped_items)
+        self.questions_from_hedges += other.questions_from_hedges
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -55,7 +58,12 @@ class ExtractionStats:
             "questions_created": self.questions_created,
             "hedge_downgrades": self.hedge_downgrades,
             "dropped_items": self.dropped_items,
+            "questions_from_hedges": self.questions_from_hedges,
         }
+
+
+def _significant_words(text: str) -> set[str]:
+    return {w for w in re.findall(r"[\wऀ-ॿ]+", text.casefold()) if len(w) >= 4}
 
 
 def roles_for(participants: list[str], me: Optional[str]) -> dict[str, str]:
@@ -170,6 +178,7 @@ async def persist_extraction(
     stats = ExtractionStats()
     chunk_by_id = {c.id: c for c in chunks}
     item_by_index: dict[int, LedgerItem] = {}
+    created_ids: set[str] = set()
 
     for index, candidate in enumerate(output.items):
         evidence = _resolve_evidence(candidate, chunk_by_id, roles)
@@ -183,8 +192,11 @@ async def persist_extraction(
         status = EvidenceStatus(candidate.evidence_status)
         hedges = sorted({h for e in evidence for h in find_hedges(e["quote"])})
         note: Optional[str] = None
+        if evidence_kind == EvidenceKind.TRANSCRIPT_QUOTE:
+            note = "Quote is from a model transcript of the uploaded file, not the file itself."
         if hedges:
-            note = f"Hedge detected: {', '.join(hedges)}."
+            hedge_note = f"Hedge detected: {', '.join(hedges)}."
+            note = f"{note} {hedge_note}" if note else hedge_note
             if status == EvidenceStatus.EXPLICIT:
                 status = EvidenceStatus.TENTATIVE
                 note += " Certainty lowered from explicit to tentative."
@@ -207,6 +219,7 @@ async def persist_extraction(
                 stated_by=stated_by_from_roles(speaker_roles),
             )
             stats.items_created += 1
+            created_ids.add(target.id)
         item_by_index[index] = target
 
         for entry, role in zip(evidence, speaker_roles):
@@ -234,11 +247,14 @@ async def persist_extraction(
         " ".join(q.casefold().split())
         for q in (await session.execute(select(Question.question).where(Question.project_id == project_id))).scalars()
     }
+    linked_ids: set[str] = set()
     for question in output.questions:
         key = " ".join(question.question.casefold().split())
         if not key or key in existing_questions:
             continue
         linked = item_by_index.get(question.item_index) if question.item_index is not None else None
+        if linked:
+            linked_ids.add(linked.id)
         session.add(
             Question(
                 project_id=project_id,
@@ -250,5 +266,25 @@ async def persist_extraction(
         )
         existing_questions.add(key)
         stats.questions_created += 1
+
+    asked_words = {w for q in output.questions for w in _significant_words(q.question)}
+    for target in item_by_index.values():
+        if target.id not in created_ids or target.id in linked_ids:
+            continue
+        if target.evidence_status != EvidenceStatus.TENTATIVE:
+            continue
+        if _significant_words(target.title) & asked_words:
+            continue
+        session.add(
+            Question(
+                project_id=project_id,
+                ledger_item_id=target.id,
+                question=f"Can you confirm this point: {target.title}?",
+                reason="The client sounded unsure or had not decided when this came up.",
+                priority=QuestionPriority.MEDIUM,
+            )
+        )
+        stats.questions_created += 1
+        stats.questions_from_hedges += 1
     await session.flush()
     return stats

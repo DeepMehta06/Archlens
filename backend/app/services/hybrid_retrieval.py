@@ -72,7 +72,9 @@ class Retriever:
         rankings = {"bm25": bm25}
         if dense is not None:
             rankings["dense"] = dense
-        fused = reciprocal_rank_fusion(rankings, k=self._settings.RRF_K)[:top_k]
+        fused = reciprocal_rank_fusion(
+            rankings, k=self._settings.RRF_K, weights={"dense": self._settings.RRF_DENSE_WEIGHT}
+        )[:top_k]
         if not fused:
             return RetrievalResult(hits=[], mode=mode)
 

@@ -154,3 +154,11 @@ def test_rrf_ignores_duplicate_candidates_within_one_channel():
 
     assert [h.id for h in fused] == ["a", "b"]
     assert fused[1].ranks["bm25"] == 2
+
+
+def test_rrf_channel_weight_changes_the_winner():
+    from app.services.rrf import reciprocal_rank_fusion
+
+    rankings = {"bm25": ["a", "b"], "dense": ["b", "a"]}
+    assert reciprocal_rank_fusion(rankings)[0].id == "a"
+    assert reciprocal_rank_fusion(rankings, weights={"dense": 2.0})[0].id == "b"

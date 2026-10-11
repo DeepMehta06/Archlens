@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     CHUNK_TARGET_CHARS: int = 1500
     EXTRACTION_BATCH_CHARS: int = 5000
     RRF_K: int = 60
+    RRF_DENSE_WEIGHT: float = 2.0
     RETRIEVAL_TOP_K: int = 10
 
     ALLOWED_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]

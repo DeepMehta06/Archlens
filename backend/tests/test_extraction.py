@@ -128,7 +128,13 @@ async def test_ingestion_creates_verified_evidence_linked_items_and_questions(se
     assert link.verification_status == VerificationStatus.VERIFIED
     assert link.speaker == "Rahul" and link.speaker_role == StatedBy.CLIENT
     assert link.highlight == "UPI se lena hai"
-    assert len(questions) == 1 and questions[0].ledger_item_id == items["Refund policy"].id
+    by_item = {q.ledger_item_id: q for q in questions}
+    assert len(questions) == 2
+    assert items["Refund policy"].id in by_item
+    fallback = [q for q in questions if q.question.startswith("Can you confirm this point:")]
+    assert len(fallback) == 1
+    assert next(i for i in items.values() if i.id == fallback[0].ledger_item_id).evidence_status == EvidenceStatus.TENTATIVE
+    assert job.result_json["questions_from_hedges"] == 1
 
 
 async def test_a_client_reply_inside_the_evidence_makes_the_item_client_stated(session, session_factory):
