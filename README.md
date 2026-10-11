@@ -1,14 +1,103 @@
- 
+<p align="center">
+  <img src="assets/archlens-logo.png" alt="ArchLens" width="340" />
+</p>
 
-# ArchLens
+<h3 align="center">Every scope decision has a receipt.</h3>
 
-**Every scope decision has a receipt.**
+<p align="center">
+  ArchLens turns messy client conversations — pasted notes, WhatsApp exports, voice memos, Hinglish included — into an evidence-backed <strong>scope ledger</strong>. Every extracted requirement links back to the exact words it came from.
+</p>
 
-ArchLens turns messy client conversations (pasted notes, WhatsApp exports, Hinglish included) into an evidence-backed **scope ledger**. Every extracted requirement links to the exact words it came from. It flags what is uncertain, drafts the clarification message for the client, freezes an approved scope baseline, and checks new requests against that baseline. A project-scoped chat assistant, powered by Gemma, can answer questions about the conversation and drive all of it.
+<p align="center">
+  <strong>100% local · No cloud AI · Powered by <a href="https://ollama.com">Ollama</a> + Gemma</strong>
+</p>
 
-Everything runs against a local [Ollama](https://ollama.com) server. No cloud AI provider is called.
+---
 
-> **Status (backend v0.2):** the backend is complete for text and WhatsApp input and has been exercised end to end against live `gemma4:e4b`. **The frontend has not been rebuilt yet**: the `frontend/` folder is the previous version and does not match this API. PDF, image and WAV import work on generated test files. See [Not built yet](#not-built-yet).
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="assets/Screenshot 2026-10-11 160943.png" alt="Landing page" /><br/>
+      <sub><b>Landing page</b> — Start a new project or try the demo</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/Screenshot 2026-10-11 160915.png" alt="Chat + Scope Ledger" /><br/>
+      <sub><b>Chat + Scope Ledger</b> — Ask questions about the project, see extracted requirements with evidence status badges in real-time</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/Screenshot 2026-10-11 160924.png" alt="Auto-generated component diagram" /><br/>
+      <sub><b>Auto-generated diagrams</b> — Architecture, component, sequence, ER, and requirements diagrams from the ledger — exportable as SVG, PNG or PDF</sub>
+    </td>
+  </tr>
+</table>
+
+---
+
+## What it does
+
+ArchLens takes a messy client conversation and turns it into a structured, evidence-backed scope ledger in seconds:
+
+1. **Ingest** — paste text, drop a WhatsApp export `.txt`, upload a PDF, image, or voice note (`.wav`)
+2. **Extract** — Gemma reads the conversation and pulls out requirements, constraints, decisions, and assumptions, each citing the exact chunk and message it came from
+3. **Verify** — code (not the model) reconstructs every quote from stored text; invented evidence is dropped; hedged statements (`"maybe"`, `"shayad"`, `"pakka nahi"`) are automatically downgraded to `tentative`
+4. **Review** — you approve or reject each item; nothing is approved by the AI
+5. **Baseline** — freeze an immutable snapshot of approved items at any point
+6. **Compare** — paste a new client request and check it against the baseline: already covered, new requirement, contradiction, or unclear
+7. **Diagrams** — generate architecture, sequence, ER, component, or requirements traceability diagrams from the live ledger; download as SVG, PNG or PDF
+8. **Chat** — a project-scoped assistant answers questions grounded in your sources and ledger, drafts client messages, lists open questions, and can trigger diagrams and comparisons
+
+---
+
+## Tech Stack
+
+### Backend
+
+| Layer | Technology |
+|---|---|
+| **Runtime** | Python 3.11+ (developed on 3.13) |
+| **API Framework** | [FastAPI](https://fastapi.tiangolo.com/) ≥ 0.115 |
+| **Server** | [Uvicorn](https://www.uvicorn.org/) with standard extras |
+| **Data validation** | [Pydantic](https://docs.pydantic.dev/) v2 + pydantic-settings |
+| **ORM / DB driver** | [SQLAlchemy](https://www.sqlalchemy.org/) 2.0 async + [aiosqlite](https://aiosqlite.omnilib.dev/) |
+| **Database** | SQLite with **FTS5** (full-text search, including Hindi) |
+| **LLM inference** | [Ollama](https://ollama.com/) local server — `gemma4:e4b` for chat, extraction, diagrams |
+| **Embeddings** | `embeddinggemma` via Ollama (optional; falls back to BM25-only retrieval) |
+| **Vector index** | [hnswlib](https://github.com/nmslib/hnswlib) for approximate nearest-neighbour search |
+| **Retrieval** | BM25 (FTS5) + dense (hnswlib) fused with **Reciprocal Rank Fusion (RRF)** |
+| **HTTP client** | [httpx](https://www.python-httpx.org/) (async, for Ollama calls) |
+| **PDF parsing** | [pypdf](https://pypdf.readthedocs.io/) + [pypdfium2](https://pypdfium2.readthedocs.io/) |
+| **Structured output** | JSON schema-constrained Ollama calls validated by Pydantic |
+| **Rate limiting** | [slowapi](https://github.com/laurents/slowapi) |
+| **Logging** | [structlog](https://www.structlog.org/) |
+| **Config** | python-dotenv / pydantic-settings via `backend/.env` |
+| **Testing** | pytest + pytest-asyncio — 90 tests, no live Ollama needed |
+
+### Frontend
+
+| Layer | Technology |
+|---|---|
+| **Framework** | [React](https://react.dev/) 19 |
+| **Build tool** | [Vite](https://vitejs.dev/) 8 |
+| **Language** | TypeScript 6 |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/) v4 (via `@tailwindcss/vite`) |
+| **Component primitives** | [Radix UI](https://www.radix-ui.com/) (headless, accessible) |
+| **UI components** | [shadcn/ui](https://ui.shadcn.com/) + custom glassmorphic design system |
+| **Data fetching** | [TanStack Query](https://tanstack.com/query) v5 |
+| **Routing** | [React Router](https://reactrouter.com/) v7 |
+| **Streaming** | Native `EventSource` / SSE for real-time chat tokens |
+| **Diagrams** | [Mermaid.js](https://mermaid.js.org/) v12 — rendered client-side, exportable as SVG/PNG/PDF |
+| **Animations** | [Motion](https://motion.dev/) (Framer Motion) |
+| **Physics** | [matter-js](https://brm.io/matter-js/) (landing page) |
+| **Toasts** | [Sonner](https://sonner.emilkowal.ski/) |
+| **Icons** | Lucide React + HugeIcons |
+| **Typography** | Plus Jakarta Sans · Fraunces · IBM Plex Mono (via @fontsource) |
+| **Linting** | oxlint |
 
 ---
 
@@ -16,11 +105,11 @@ Everything runs against a local [Ollama](https://ollama.com) server. No cloud AI
 
 ```mermaid
 flowchart TB
-  subgraph UI["Browser (frontend: to be rebuilt)"]
+  subgraph UI["Browser (React + Vite)"]
     Chat["Chat with streaming and citations"]
-    Panel["Ledger, questions, diagrams, baseline, evidence"]
+    Panel["Ledger · Questions · Diagrams · Baseline · Evidence"]
   end
-  subgraph API["FastAPI: routes only"]
+  subgraph API["FastAPI — routes only"]
     R["projects, sources, ledger, questions, snapshots, compare, diagrams, export, chat"]
   end
   subgraph SVC["Services"]
@@ -38,7 +127,7 @@ flowchart TB
     G["gemma4:e4b"]
     E["embeddinggemma (optional)"]
   end
-  UI -->|"HTTP and SSE"| API --> SVC
+  UI -->|"HTTP + SSE"| API --> SVC
   SVC --> DB
   SVC --> LLM
 ```
@@ -73,27 +162,39 @@ stateDiagram-v2
   new_requirement --> needs_review: filed as a candidate
 ```
 
+---
+
 ## Why you can trust the evidence
 
 Small local models paraphrase and invent, so provenance is never taken from the model:
 
 - **Citation by number.** The model cites a chunk id and unit (message) numbers. Code rebuilds the quote from stored text, so a quote cannot be misquoted. Free-text quotes are checked with whitespace-normalised exact matching.
 - **Invented evidence is dropped.** Items whose chunk ids or unit numbers do not exist are discarded and reported in the job result, never silently kept.
-- **Hedges cap certainty.** A statement containing a hedge ("maybe", "not sure", "shayad", "pakka nahi", Devanagari equivalents) cannot stay `explicit`; it is lowered to `tentative`, with a note. This is a heuristic cross-check, not the only classifier.
+- **Hedges cap certainty.** A statement containing a hedge (`"maybe"`, `"not sure"`, `"shayad"`, `"pakka nahi"`, Devanagari equivalents) cannot stay `explicit`; it is lowered to `tentative`, with a note.
 - **The model cannot approve scope.** Every new item enters as `needs_review`. Approval is a separate field from evidence certainty. Snapshots contain approved items only and are immutable.
 - **Ids are validated.** Cited baseline ids, chunk ids and diagram references are checked in code; unsupported verdicts are downgraded to `unclear`; diagram edges to undefined nodes are dropped and reported.
 - **Project isolation.** Every query and every id is checked against the project.
-- **Chat is grounded.** Answers are written only from retrieved passages. Citation markers are validated against what was supplied, answers with no valid citation are flagged `grounded: false`, and when retrieval finds nothing the assistant says so without calling the model. Chat never approves, rejects or snapshots anything.
+- **Chat is grounded.** Answers are written only from retrieved passages. Citation markers are validated against what was supplied; answers with no valid citation are flagged `grounded: false`; when retrieval finds nothing the assistant says so without calling the model. Chat never approves, rejects or snapshots anything.
 - **Imported text is data.** Prompts tell the model to ignore instructions inside client content.
+
+---
 
 ## Setup
 
-Requires Python 3.11+ (developed on 3.13) and [Ollama](https://ollama.com/download).
+### Requirements
+
+- Python 3.11+ (developed on 3.13)
+- Node.js 18+ and npm
+- [Ollama](https://ollama.com/download)
+
+### 1. Pull the models
 
 ```bash
 ollama pull gemma4:e4b
-ollama pull embeddinggemma        # optional; without it retrieval is BM25-only
+ollama pull embeddinggemma        # optional — enables hybrid retrieval
 ```
+
+### 2. Start the backend
 
 ```bash
 cd backend
@@ -103,71 +204,102 @@ venv\Scripts\activate             # Windows
 pip install -r requirements.txt
 cp .env.example .env
 python -m scripts.check_setup     # verifies FTS5, models, structured output and speed
-uvicorn app.main:app --reload     # http://127.0.0.1:8000 , docs at /docs
+uvicorn app.main:app --reload     # http://127.0.0.1:8000 · API docs at /docs
 ```
 
-Seed the labelled demo project (a short Hinglish WhatsApp chat) through the real pipeline:
+### 3. Start the frontend
+
+```bash
+cd frontend
+npm install
+npm run dev                       # http://localhost:5173
+```
+
+### 4. (Optional) Seed the demo project
+
+Seed a labelled Hinglish WhatsApp demo chat through the real pipeline:
 
 ```bash
 curl -X POST http://127.0.0.1:8000/api/demo/seed
 ```
 
-### Configuration (`backend/.env`)
+Then open `http://localhost:5173`, click **Try the demo**, and explore.
 
-| Variable                                    | Default                    | Purpose                                                                                          |
-| ------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------ |
-| `OLLAMA_BASE_URL`                         | `http://127.0.0.1:11434` | Local Ollama endpoint                                                                            |
-| `OLLAMA_MODEL`                            | `gemma4:e4b`             | Chat, extraction and diagram model                                                               |
-| `OLLAMA_EMBED_MODEL`                      | `embeddinggemma`         | Dense embeddings (optional)                                                                      |
-| `OLLAMA_NUM_CTX` / `OLLAMA_NUM_PREDICT` | `16384` / `4096`       | Context window and output limit; hitting the limit is an explicit error                          |
-| `OLLAMA_THINK`                            | `false`                  | Gemma 4 is a thinking model; with thinking on it can spend the whole budget before emitting JSON |
-| `OLLAMA_TIMEOUT_SECONDS`                  | `600`                    | Per-request timeout                                                                              |
-| `ARCHLENS_DATA_DIR`                       | `./data`                 | SQLite database and uploads                                                                      |
-| `MAX_UPLOAD_BYTES`                        | `20971520`               | Upload size limit                                                                                |
+### Stopping everything
 
-`EMBED_QUERY_PREFIX` and `EMBED_DOCUMENT_PREFIX` hold EmbeddingGemma's task prompts. They match Google's published EmbeddingGemma retrieval templates (`task: search result | query: ` and `title: none | text: `); Ollama's template for this model is raw, so the application adds them.
+```powershell
+# Kill by port (PowerShell)
+Get-NetTCPConnection -LocalPort 5173,8000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
 
-## API (prefix `/api`)
+# Or by process name
+taskkill /F /IM node.exe
+taskkill /F /IM python.exe
+```
 
-| Method               | Path                              | Purpose                                                                         |
-| -------------------- | --------------------------------- | ------------------------------------------------------------------------------- |
-| GET                  | `/health`                       | Ollama, models, retrieval mode (`hybrid` or `bm25_only`), privacy statement |
-| POST / GET           | `/projects`                     | Create / list                                                                   |
-| GET / PATCH / DELETE | `/projects/{id}`                | Read / update / delete with its data and search index                           |
-| GET / POST           | `/projects/{id}/sources`        | List / add pasted text (JSON)                                                   |
-| POST                 | `/projects/{id}/sources/upload` | `.txt`, `.md`, `.pdf`, `.png`, `.jpg`, `.webp` or `.wav` upload   |
-| GET / PATCH          | `/projects/{id}/sources/{sid}`  | Source with chunks / set which sender is "you"                                  |
-| GET                  | `/jobs/{id}`                    | Real stage and progress of ingestion                                            |
-| GET                  | `/projects/{id}/ledger`         | Items, filterable by status and type                                            |
-| GET / PATCH          | `/ledger-items/{id}`            | Item with evidence and source context / edit, approve, reject                   |
-| GET                  | `/projects/{id}/questions`      | Open questions                                                                  |
-| PATCH                | `/questions/{id}`               | Resolve or dismiss                                                              |
-| POST                 | `/projects/{id}/draft-message`  | Editable English or Hinglish client message                                     |
-| POST / GET           | `/projects/{id}/snapshots`      | Create an immutable baseline from approved items / list                         |
-| POST                 | `/projects/{id}/compare`        | Classify an incoming request against a snapshot                                 |
-| GET                  | `/change-reports/{id}`          | A stored comparison                                                             |
-| POST / GET           | `/projects/{id}/diagrams`       | Generate a diagram from the ledger / list                                       |
-| GET                  | `/projects/{id}/export.md`      | Markdown scope brief                                                            |
-| POST                 | `/projects/{id}/chat`           | Chat turn as a server-sent event stream                                         |
-| GET                  | `/projects/{id}/chat/messages`  | Chat history                                                                    |
-| POST                 | `/demo/seed`                    | Labelled demo project                                                           |
+---
 
-**Chat stream events:** `thread`, `status`, `token`, `replace` (citation markers cleaned), `card` (ledger list, questions, draft message, diagram, change report, confirm-add-source, error), `citations` (with `grounded`), `error`, `done`.
+## Configuration (`backend/.env`)
 
-## Measured so far
+| Variable | Default | Purpose |
+|---|---|---|
+| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Local Ollama endpoint |
+| `OLLAMA_MODEL` | `gemma4:e4b` | Chat, extraction and diagram model |
+| `OLLAMA_EMBED_MODEL` | `embeddinggemma` | Dense embeddings (optional) |
+| `OLLAMA_NUM_CTX` / `OLLAMA_NUM_PREDICT` | `16384` / `4096` | Context window and output limit; hitting the limit is an explicit error |
+| `OLLAMA_THINK` | `false` | Gemma 4 is a thinking model; with thinking on it can spend the whole budget before emitting JSON |
+| `OLLAMA_TIMEOUT_SECONDS` | `600` | Per-request timeout |
+| `ARCHLENS_DATA_DIR` | `./data` | SQLite database and uploads |
+| `MAX_UPLOAD_BYTES` | `20971520` | Upload size limit (20 MB) |
 
-Single runs on one machine (RTX 4060 Laptop 8 GB, Windows 11, Ollama 0.40.2, `gemma4:e4b`, thinking off) with **one synthetic 12-message Hinglish chat**. These are indications, not benchmarks, and extraction quality has not been evaluated beyond reading the output.
+`EMBED_QUERY_PREFIX` and `EMBED_DOCUMENT_PREFIX` hold EmbeddingGemma's task prompts matching Google's published templates; Ollama's template for this model is raw, so the application adds them.
 
-| Operation                                                                          | Observed          |
-| ---------------------------------------------------------------------------------- | ----------------- |
-| Import demo chat to ledger (7 items, 2 questions, every quote verified, 0 dropped) | 28 s              |
-| Chat turn, grounded answer (router + retrieval + streamed answer)                  | about 1.9 s total |
-| Router call                                                                        | 0.6 to 1.1 s      |
-| Draft client message                                                               | about 1 s         |
-| Diagram from ledger                                                                | about 3 s         |
-| Compare a request to a snapshot                                                    | about 2 to 3 s    |
+---
 
-The numbers above were measured with BM25-only retrieval. After installing `embeddinggemma` the chat reported `hybrid` mode and returned grounded, cited answers for English and Hinglish questions on the demo chat (four ad hoc queries, one of which returned no output). Retrieval quality has not been measured; no recall figures exist yet.
+## API Reference (prefix `/api`)
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/health` | Ollama reachability, models, retrieval mode, privacy statement |
+| POST / GET | `/projects` | Create / list projects |
+| GET / PATCH / DELETE | `/projects/{id}` | Read / update / delete with its data and search index |
+| GET / POST | `/projects/{id}/sources` | List / add pasted text (JSON) |
+| POST | `/projects/{id}/sources/upload` | Upload `.txt`, `.md`, `.pdf`, `.png`, `.jpg`, `.webp` or `.wav` |
+| GET / PATCH | `/projects/{id}/sources/{sid}` | Source with chunks / set which sender is "you" |
+| GET | `/jobs/{id}` | Real-time stage and progress of an ingestion job |
+| GET | `/projects/{id}/ledger` | Items, filterable by status and type |
+| GET / PATCH | `/ledger-items/{id}` | Item with evidence and source context / edit, approve, reject |
+| GET | `/projects/{id}/questions` | Open questions for the client |
+| PATCH | `/questions/{id}` | Resolve or dismiss a question |
+| POST | `/projects/{id}/draft-message` | Editable English or Hinglish client message |
+| POST / GET | `/projects/{id}/snapshots` | Create an immutable baseline / list snapshots |
+| POST | `/projects/{id}/compare` | Classify an incoming request against a snapshot |
+| GET | `/change-reports/{id}` | A stored comparison report |
+| POST / GET | `/projects/{id}/diagrams` | Generate a Mermaid diagram from the ledger / list |
+| GET | `/projects/{id}/export.md` | Export scope brief as Markdown |
+| POST | `/projects/{id}/chat` | Chat turn as a server-sent event stream |
+| GET | `/projects/{id}/chat/messages` | Chat history |
+| POST | `/demo/seed` | Seed the labelled demo project |
+
+**Chat stream event types:** `thread` · `status` · `token` · `replace` (citation cleanup) · `card` (ledger list, questions, draft, diagram, change report, confirm-add-source, error) · `citations` · `error` · `done`
+
+**Chat intents handled:** `answer_question` (retrieval-grounded) · `list_ledger` · `open_questions` · `draft_message` · `create_diagram` · `compare_request` · `general_reasoning` (project-scoped Q&A without requiring citations) · `off_topic` (blocked)
+
+---
+
+## Performance
+
+Single runs on one machine (RTX 4060 Laptop 8 GB, Windows 11, Ollama 0.40.2, `gemma4:e4b`, thinking off) with a synthetic 12-message Hinglish chat. These are indications, not benchmarks.
+
+| Operation | Observed |
+|---|---|
+| Import demo chat to ledger (7 items, 2 questions, every quote verified, 0 dropped) | 28 s |
+| Chat turn, grounded answer (router + retrieval + streamed answer) | ~1.9 s total |
+| Router call | 0.6–1.1 s |
+| Draft client message | ~1 s |
+| Diagram from ledger | ~3 s |
+| Compare a request to a snapshot | ~2–3 s |
+
+---
 
 ## Tests
 
@@ -176,23 +308,21 @@ cd backend
 pytest
 ```
 
-90 tests covering the WhatsApp parser, chunking, hedges, quote verification, RRF, FTS5 (including Hindi), hybrid retrieval and BM25-only fallback, extraction provenance, the full HTTP flow, project isolation, chat streaming and grounding, and the Mermaid compiler. The model is faked, so no Ollama server is needed.
+90 tests covering: WhatsApp parser, chunking, hedges, quote verification, RRF, FTS5 (including Hindi), hybrid retrieval and BM25-only fallback, extraction provenance, full HTTP flow, project isolation, chat streaming and grounding, and the Mermaid compiler. The model is faked — no Ollama server needed.
+
+---
 
 ## Evaluation
 
 A live harness (`backend/evals`) measures extraction recall, hedge handling, router accuracy, retrieval (BM25 vs dense vs hybrid) and change detection on small synthetic sets. Results, caveats and held-out numbers are in [docs/EVALUATION.md](docs/EVALUATION.md); backend internals are in [docs/BACKEND.md](docs/BACKEND.md).
 
-## Not built yet
-
-- **Frontend rebuild** (the chat-first, light glassmorphic interface). The existing `frontend/` is the previous version.
-- **Real-world media testing.** PDF, image and WAV import work end to end on generated files only; real photos, noisy audio, Hinglish speech and other audio formats are untested. Audio goes in the Ollama `images` field (the `audio` field is silently ignored).
-- OCR boxes, speaker diarization, reranking, chat-driven approvals (by design), a retrieval and extraction quality evaluation.
-- Duplicate detection is title similarity only, so paraphrased duplicates are not merged.
-- The extraction can miss items (in the demo run the unresolved refund rule became a question but not an item).
+---
 
 ## Privacy
 
-Model inference runs locally through Ollama and no cloud AI provider is used. Model downloads and development tooling can still use the network, and the app does not claim zero outbound traffic. Data is stored in `ARCHLENS_DATA_DIR` (default `./data`, git-ignored); if that folder lives in a synced directory such as OneDrive, it syncs. Private message content is not logged.
+Model inference runs entirely locally through Ollama — no cloud AI provider is called. Model downloads and development tooling can still use the network. Data is stored in `ARCHLENS_DATA_DIR` (default `./data`, git-ignored). Private message content is not logged.
+
+---
 
 ## License
 
