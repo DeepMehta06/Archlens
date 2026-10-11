@@ -1,0 +1,1009 @@
+{
+  "generated_at": "2026-10-11T07:31:14+00:00",
+  "model": "gemma4:e4b",
+  "embed_model": "embeddinggemma",
+  "ollama_health": {
+    "reachable": true,
+    "model_installed": true,
+    "embed_model_installed": true
+  },
+  "repeat": 2,
+  "extraction": {
+    "runs": [
+      {
+        "clinic": {
+          "items": 7,
+          "questions": 2,
+          "facts": [
+            {
+              "id": "doctor_approval",
+              "found": true,
+              "items": [
+                "REQ-002"
+              ]
+            },
+            {
+              "id": "upi_payment",
+              "found": true,
+              "items": [
+                "REQ-003"
+              ]
+            },
+            {
+              "id": "advance_payment",
+              "found": true,
+              "items": [
+                "REQ-003"
+              ]
+            },
+            {
+              "id": "cash_at_clinic",
+              "found": true,
+              "items": [
+                "ASM-001"
+              ],
+              "hedged_expected": true,
+              "hedge_respected": true
+            },
+            {
+              "id": "timeline_8_weeks",
+              "found": true,
+              "items": [
+                "CON-001"
+              ]
+            },
+            {
+              "id": "budget_1_5_lakh",
+              "found": true,
+              "items": [
+                "CON-002"
+              ]
+            },
+            {
+              "id": "whatsapp_reminders",
+              "found": true,
+              "items": [
+                "REQ-004"
+              ]
+            }
+          ],
+          "recall": 1.0,
+          "hedged_total": 1,
+          "hedged_respected": 1,
+          "gaps": [
+            {
+              "id": "refund_rule",
+              "asked": true,
+              "also_an_item": false
+            }
+          ],
+          "gap_recall": 1.0,
+          "traps_triggered": 0,
+          "traps": [
+            {
+              "id": "invented_loyalty",
+              "triggered": false,
+              "items": []
+            }
+          ],
+          "evidence_total": 7,
+          "evidence_verified": 7,
+          "all_needs_review": true,
+          "item_titles": [
+            "REQ-001 [explicit] Patients must be able to book appointments online",
+            "REQ-002 [explicit] Doctor must approve every appointment booking",
+            "REQ-003 [explicit] Advance payment must be taken via UPI",
+            "CON-001 [explicit] Project timeline is set for eight weeks",
+            "CON-002 [explicit] Budget must not exceed 1.5 lakh rupees",
+            "REQ-004 [explicit] Appointment reminders must be sent via WhatsApp",
+            "ASM-001 [tentative] Cash payment option might be included later"
+          ],
+          "question_texts": [
+            "Should the system support cash payments at the clinic, even if it is not confirmed yet?",
+            "What is the rule for refunds if an appointment is cancelled?"
+          ],
+          "job": {
+            "status": "completed",
+            "error": null,
+            "items_created": 7,
+            "items_merged": 0,
+            "questions_created": 2,
+            "hedge_downgrades": 0,
+            "dropped_items": [],
+            "chunks": 1,
+            "failed_batches": 0,
+            "retrieval_mode": "hybrid"
+          },
+          "seconds": 9.9
+        },
+        "bakery": {
+          "items": 6,
+          "questions": 2,
+          "facts": [
+            {
+              "id": "pickup_slot_ordering",
+              "found": true,
+              "items": [
+                "REQ-001"
+              ]
+            },
+            {
+              "id": "razorpay_only",
+              "found": true,
+              "items": [
+                "CON-001"
+              ]
+            },
+            {
+              "id": "loyalty_stamp_card",
+              "found": false,
+              "items": [],
+              "hedged_expected": true,
+              "hedge_respected": false
+            },
+            {
+              "id": "no_delivery",
+              "found": true,
+              "items": [
+                "CON-003"
+              ]
+            },
+            {
+              "id": "diwali_deadline",
+              "found": true,
+              "items": [
+                "CON-002"
+              ]
+            },
+            {
+              "id": "logo_by_nephew",
+              "found": false,
+              "items": [],
+              "hedged_expected": true,
+              "hedge_respected": false
+            },
+            {
+              "id": "admin_panel_ready",
+              "found": true,
+              "items": [
+                "REQ-002"
+              ]
+            }
+          ],
+          "recall": 0.7142857142857143,
+          "hedged_total": 2,
+          "hedged_respected": 0,
+          "gaps": [
+            {
+              "id": "tally_sync",
+              "asked": true,
+              "also_an_item": true
+            },
+            {
+              "id": "budget_missing",
+              "asked": true,
+              "also_an_item": false
+            }
+          ],
+          "gap_recall": 1.0,
+          "traps_triggered": 0,
+          "traps": [
+            {
+              "id": "weather_small_talk",
+              "triggered": false,
+              "items": []
+            },
+            {
+              "id": "cat_small_talk",
+              "triggered": false,
+              "items": []
+            },
+            {
+              "id": "invented_whatsapp",
+              "triggered": false,
+              "items": []
+            },
+            {
+              "id": "invented_mobile_app",
+              "triggered": false,
+              "items": []
+            }
+          ],
+          "evidence_total": 6,
+          "evidence_verified": 6,
+          "all_needs_review": true,
+          "item_titles": [
+            "REQ-001 [explicit] Online ordering website with pickup slot selection",
+            "CON-001 [explicit] Payment must be exclusively through Razorpay",
+            "CON-002 [explicit] Website must launch before Diwali deadline",
+            "REQ-002 [explicit] Admin panel for staff to mark orders ready",
+            "REQ-003 [tentative] Stock synchronization with Tally accounting system",
+            "CON-003 [explicit] Pickup only, no delivery service required"
+          ],
+          "question_texts": [
+            "What is the expected budget for this project?",
+            "Can you confirm if Tally exports data in a format that is easily consumable by a web application for stock synchronization?"
+          ],
+          "job": {
+            "status": "completed",
+            "error": null,
+            "items_created": 6,
+            "items_merged": 0,
+            "questions_created": 2,
+            "hedge_downgrades": 0,
+            "dropped_items": [],
+            "chunks": 1,
+            "failed_batches": 0,
+            "retrieval_mode": "hybrid"
+          },
+          "seconds": 8.5
+        },
+        "gym": {
+          "items": 8,
+          "questions": 2,
+          "facts": [
+            {
+              "id": "class_booking",
+              "found": true,
+              "items": [
+                "REQ-001"
+              ]
+            },
+            {
+              "id": "max_20_per_batch",
+              "found": true,
+              "items": [
+                "CON-001",
+                "CON-002"
+              ]
+            },
+            {
+              "id": "paytm_upi_only",
+              "found": true,
+              "items": [
+                "REQ-002"
+              ]
+            },
+            {
+              "id": "qr_attendance",
+              "found": true,
+              "items": [
+                "REQ-003"
+              ]
+            },
+            {
+              "id": "face_recognition",
+              "found": false,
+              "items": [],
+              "hedged_expected": true,
+              "hedge_respected": false
+            },
+            {
+              "id": "hindi_english",
+              "found": true,
+              "items": [
+                "REQ-004"
+              ]
+            },
+            {
+              "id": "push_notifications_final",
+              "found": true,
+              "items": [
+                "REQ-005"
+              ]
+            },
+            {
+              "id": "republic_day_deadline",
+              "found": true,
+              "items": [
+                "CON-002"
+              ]
+            },
+            {
+              "id": "budget_2_lakh",
+              "found": true,
+              "items": [
+                "CON-003"
+              ]
+            }
+          ],
+          "recall": 0.8888888888888888,
+          "hedged_total": 1,
+          "hedged_respected": 0,
+          "gaps": [
+            {
+              "id": "membership_freeze",
+              "asked": true,
+              "also_an_item": false
+            }
+          ],
+          "gap_recall": 1.0,
+          "traps_triggered": 0,
+          "traps": [
+            {
+              "id": "invented_diet_plan",
+              "triggered": false,
+              "items": []
+            }
+          ],
+          "evidence_total": 8,
+          "evidence_verified": 8,
+          "all_needs_review": true,
+          "item_titles": [
+            "REQ-001 [explicit] Develop an app for gym member class booking",
+            "CON-001 [explicit] Maximum 20 members per class batch",
+            "REQ-002 [explicit] Accept payments via Paytm and UPI",
+            "REQ-003 [explicit] Trainer attendance tracking via QR code",
+            "REQ-004 [explicit] Support for Hindi and English languages",
+            "REQ-005 [explicit] Use push notifications for alerts",
+            "CON-002 [explicit] Launch before Republic Day (Jan 20)",
+            "CON-003 [explicit] Budget limit of 2 lakh INR"
+          ],
+          "question_texts": [
+            "Regarding membership freeze, should the app include an option for members to freeze their membership?",
+            "What is the expected functionality or scope for the face recognition feature, if it is implemented later?"
+          ],
+          "job": {
+            "status": "completed",
+            "error": null,
+            "items_created": 8,
+            "items_merged": 0,
+            "questions_created": 2,
+            "hedge_downgrades": 0,
+            "dropped_items": [],
+            "chunks": 1,
+            "failed_batches": 0,
+            "retrieval_mode": "hybrid"
+          },
+          "seconds": 10.3
+        }
+      },
+      {
+        "clinic": {
+          "items": 6,
+          "questions": 2,
+          "facts": [
+            {
+              "id": "doctor_approval",
+              "found": true,
+              "items": [
+                "REQ-002"
+              ]
+            },
+            {
+              "id": "upi_payment",
+              "found": true,
+              "items": [
+                "REQ-003"
+              ]
+            },
+            {
+              "id": "advance_payment",
+              "found": true,
+              "items": [
+                "REQ-003"
+              ]
+            },
+            {
+              "id": "cash_at_clinic",
+              "found": true,
+              "items": [
+                "ASM-001"
+              ],
+              "hedged_expected": true,
+              "hedge_respected": true
+            },
+            {
+              "id": "timeline_8_weeks",
+              "found": true,
+              "items": [
+                "CON-001"
+              ]
+            },
+            {
+              "id": "budget_1_5_lakh",
+              "found": true,
+              "items": [
+                "CON-001"
+              ]
+            },
+            {
+              "id": "whatsapp_reminders",
+              "found": true,
+              "items": [
+                "REQ-004"
+              ]
+            }
+          ],
+          "recall": 1.0,
+          "hedged_total": 1,
+          "hedged_respected": 1,
+          "gaps": [
+            {
+              "id": "refund_rule",
+              "asked": true,
+              "also_an_item": false
+            }
+          ],
+          "gap_recall": 1.0,
+          "traps_triggered": 0,
+          "traps": [
+            {
+              "id": "invented_loyalty",
+              "triggered": false,
+              "items": []
+            }
+          ],
+          "evidence_total": 6,
+          "evidence_verified": 6,
+          "all_needs_review": true,
+          "item_titles": [
+            "REQ-001 [explicit] Patients must book appointments online",
+            "REQ-002 [explicit] Doctor must approve every booking",
+            "REQ-003 [explicit] Accept UPI for advance payment",
+            "CON-001 [explicit] Project timeline and budget limits",
+            "REQ-004 [explicit] Send appointment reminders via WhatsApp",
+            "ASM-001 [tentative] Cash payment option might be included"
+          ],
+          "question_texts": [
+            "Should the system support cash payment at the clinic?",
+            "What are the rules for refunds upon cancellation?"
+          ],
+          "job": {
+            "status": "completed",
+            "error": null,
+            "items_created": 6,
+            "items_merged": 0,
+            "questions_created": 2,
+            "hedge_downgrades": 0,
+            "dropped_items": [],
+            "chunks": 1,
+            "failed_batches": 0,
+            "retrieval_mode": "hybrid"
+          },
+          "seconds": 8.1
+        },
+        "bakery": {
+          "items": 6,
+          "questions": 2,
+          "facts": [
+            {
+              "id": "pickup_slot_ordering",
+              "found": true,
+              "items": [
+                "REQ-001"
+              ]
+            },
+            {
+              "id": "razorpay_only",
+              "found": true,
+              "items": [
+                "CON-001"
+              ]
+            },
+            {
+              "id": "loyalty_stamp_card",
+              "found": false,
+              "items": [],
+              "hedged_expected": true,
+              "hedge_respected": false
+            },
+            {
+              "id": "no_delivery",
+              "found": true,
+              "items": [
+                "CON-003"
+              ]
+            },
+            {
+              "id": "diwali_deadline",
+              "found": true,
+              "items": [
+                "CON-002"
+              ]
+            },
+            {
+              "id": "logo_by_nephew",
+              "found": false,
+              "items": [],
+              "hedged_expected": true,
+              "hedge_respected": false
+            },
+            {
+              "id": "admin_panel_ready",
+              "found": true,
+              "items": [
+                "REQ-002"
+              ]
+            }
+          ],
+          "recall": 0.7142857142857143,
+          "hedged_total": 2,
+          "hedged_respected": 0,
+          "gaps": [
+            {
+              "id": "tally_sync",
+              "asked": true,
+              "also_an_item": true
+            },
+            {
+              "id": "budget_missing",
+              "asked": true,
+              "also_an_item": false
+            }
+          ],
+          "gap_recall": 1.0,
+          "traps_triggered": 0,
+          "traps": [
+            {
+              "id": "weather_small_talk",
+              "triggered": false,
+              "items": []
+            },
+            {
+              "id": "cat_small_talk",
+              "triggered": false,
+              "items": []
+            },
+            {
+              "id": "invented_whatsapp",
+              "triggered": false,
+              "items": []
+            },
+            {
+              "id": "invented_mobile_app",
+              "triggered": false,
+              "items": []
+            }
+          ],
+          "evidence_total": 6,
+          "evidence_verified": 6,
+          "all_needs_review": true,
+          "item_titles": [
+            "REQ-001 [explicit] Online ordering website with pickup slot selection",
+            "CON-001 [explicit] Payments must be processed only via Razorpay",
+            "CON-002 [explicit] Website must launch before Diwali deadline",
+            "REQ-002 [explicit] Admin panel for staff to mark orders ready",
+            "REQ-003 [tentative] Stock synchronization with Tally accounting system",
+            "CON-003 [explicit] Pickup only, no delivery service required"
+          ],
+          "question_texts": [
+            "What is the expected budget for this project?",
+            "Can you confirm if Tally exports data in a format compatible with our system for stock synchronization?"
+          ],
+          "job": {
+            "status": "completed",
+            "error": null,
+            "items_created": 6,
+            "items_merged": 0,
+            "questions_created": 2,
+            "hedge_downgrades": 0,
+            "dropped_items": [],
+            "chunks": 1,
+            "failed_batches": 0,
+            "retrieval_mode": "hybrid"
+          },
+          "seconds": 8.6
+        },
+        "gym": {
+          "items": 8,
+          "questions": 2,
+          "facts": [
+            {
+              "id": "class_booking",
+              "found": true,
+              "items": [
+                "REQ-001"
+              ]
+            },
+            {
+              "id": "max_20_per_batch",
+              "found": true,
+              "items": [
+                "CON-001",
+                "CON-002"
+              ]
+            },
+            {
+              "id": "paytm_upi_only",
+              "found": true,
+              "items": [
+                "REQ-002"
+              ]
+            },
+            {
+              "id": "qr_attendance",
+              "found": true,
+              "items": [
+                "REQ-003"
+              ]
+            },
+            {
+              "id": "face_recognition",
+              "found": false,
+              "items": [],
+              "hedged_expected": true,
+              "hedge_respected": false
+            },
+            {
+              "id": "hindi_english",
+              "found": true,
+              "items": [
+                "REQ-004"
+              ]
+            },
+            {
+              "id": "push_notifications_final",
+              "found": true,
+              "items": [
+                "REQ-005"
+              ]
+            },
+            {
+              "id": "republic_day_deadline",
+              "found": true,
+              "items": [
+                "CON-002"
+              ]
+            },
+            {
+              "id": "budget_2_lakh",
+              "found": true,
+              "items": [
+                "CON-003"
+              ]
+            }
+          ],
+          "recall": 0.8888888888888888,
+          "hedged_total": 1,
+          "hedged_respected": 0,
+          "gaps": [
+            {
+              "id": "membership_freeze",
+              "asked": true,
+              "also_an_item": false
+            }
+          ],
+          "gap_recall": 1.0,
+          "traps_triggered": 0,
+          "traps": [
+            {
+              "id": "invented_diet_plan",
+              "triggered": false,
+              "items": []
+            }
+          ],
+          "evidence_total": 8,
+          "evidence_verified": 8,
+          "all_needs_review": true,
+          "item_titles": [
+            "REQ-001 [explicit] Develop an app for gym member class booking",
+            "CON-001 [explicit] Maximum 20 people per class batch",
+            "REQ-002 [explicit] Accept payments via Paytm and UPI",
+            "REQ-003 [explicit] Trainer attendance via QR code",
+            "REQ-004 [explicit] App must support Hindi and English",
+            "REQ-005 [explicit] Use push notifications for alerts",
+            "CON-002 [explicit] Launch before Republic Day (Jan 20)",
+            "CON-003 [explicit] Budget limit of 2 lakh INR"
+          ],
+          "question_texts": [
+            "Should the feature for membership freeze be included in the current scope?",
+            "Is face recognition a requirement for the current phase, or should it be deferred indefinitely?"
+          ],
+          "job": {
+            "status": "completed",
+            "error": null,
+            "items_created": 8,
+            "items_merged": 0,
+            "questions_created": 2,
+            "hedge_downgrades": 0,
+            "dropped_items": [],
+            "chunks": 1,
+            "failed_batches": 0,
+            "retrieval_mode": "hybrid"
+          },
+          "seconds": 10.3
+        }
+      }
+    ],
+    "summary": {
+      "fact_recall": 0.87,
+      "facts_found": "40/46",
+      "hedge_respected": "2/8",
+      "gap_questions_asked": "8/8",
+      "gap_also_extracted_as_item": 2,
+      "traps_triggered": 0,
+      "evidence_verified": "41/41",
+      "all_items_needs_review": true,
+      "missed_facts": [
+        "bakery/logo_by_nephew",
+        "bakery/loyalty_stamp_card",
+        "gym/face_recognition"
+      ],
+      "mean_seconds_per_conversation": 9.3,
+      "failed_jobs": 0
+    }
+  },
+  "suite_seconds": {
+    "extraction": 56.1,
+    "router": 42.1,
+    "retrieval": 6.5,
+    "compare": 27.7,
+    "invariants": 10.3
+  },
+  "router": {
+    "accuracy": "74/74",
+    "per_intent": {
+      "answer_question": "24/24",
+      "list_ledger": "8/8",
+      "open_questions": "8/8",
+      "draft_message": "6/6",
+      "create_diagram": "8/8",
+      "compare_request": "8/8",
+      "off_topic": "12/12"
+    },
+    "wrong": [],
+    "off_topic_false_positives": 0,
+    "median_seconds": 0.56
+  },
+  "retrieval": {
+    "chunks_indexed": 11,
+    "chunk_chars": 300,
+    "overall": {
+      "bm25": {
+        "recall@1": 0.5,
+        "recall@3": 0.75,
+        "mrr": 0.608,
+        "n": 20
+      },
+      "dense": {
+        "recall@1": 0.7,
+        "recall@3": 0.9,
+        "mrr": 0.811,
+        "n": 20
+      },
+      "hybrid": {
+        "recall@1": 0.6,
+        "recall@3": 0.8,
+        "mrr": 0.716,
+        "n": 20
+      }
+    },
+    "by_query_kind": {
+      "en_direct": {
+        "bm25": {
+          "recall@1": 0.333,
+          "recall@3": 1.0,
+          "mrr": 0.667,
+          "n": 3
+        },
+        "dense": {
+          "recall@1": 0.667,
+          "recall@3": 1.0,
+          "mrr": 0.833,
+          "n": 3
+        },
+        "hybrid": {
+          "recall@1": 0.667,
+          "recall@3": 1.0,
+          "mrr": 0.778,
+          "n": 3
+        }
+      },
+      "hinglish_direct": {
+        "bm25": {
+          "recall@1": 1.0,
+          "recall@3": 1.0,
+          "mrr": 1.0,
+          "n": 6
+        },
+        "dense": {
+          "recall@1": 1.0,
+          "recall@3": 1.0,
+          "mrr": 1.0,
+          "n": 6
+        },
+        "hybrid": {
+          "recall@1": 1.0,
+          "recall@3": 1.0,
+          "mrr": 1.0,
+          "n": 6
+        }
+      },
+      "en_paraphrase": {
+        "bm25": {
+          "recall@1": 0.273,
+          "recall@3": 0.545,
+          "mrr": 0.379,
+          "n": 11
+        },
+        "dense": {
+          "recall@1": 0.545,
+          "recall@3": 0.818,
+          "mrr": 0.702,
+          "n": 11
+        },
+        "hybrid": {
+          "recall@1": 0.364,
+          "recall@3": 0.636,
+          "mrr": 0.544,
+          "n": 11
+        }
+      }
+    },
+    "misses": [
+      {
+        "query": "what is the maximum amount the client can spend",
+        "kind": "en_paraphrase",
+        "expect": "budget 1.5 lakh",
+        "hybrid": 8,
+        "bm25": null,
+        "dense": 7,
+        "relevant_found": true
+      },
+      {
+        "query": "what happens to the money if a patient cancels",
+        "kind": "en_paraphrase",
+        "expect": "refund ka kya rule",
+        "hybrid": 4,
+        "bm25": null,
+        "dense": 1,
+        "relevant_found": true
+      },
+      {
+        "query": "which languages should the app support",
+        "kind": "en_paraphrase",
+        "expect": "हिंदी और अंग्रेज़ी",
+        "hybrid": 6,
+        "bm25": null,
+        "dense": 1,
+        "relevant_found": true
+      },
+      {
+        "query": "what is the spending ceiling for the gym app",
+        "kind": "en_paraphrase",
+        "expect": "Budget 2 lakh",
+        "hybrid": 9,
+        "bm25": null,
+        "dense": 4,
+        "relevant_found": true
+      }
+    ]
+  },
+  "compare": {
+    "baseline_items": 7,
+    "primary_accuracy": "8/8",
+    "any_accuracy": "8/8",
+    "confusion": {
+      "already_covered -> already_covered": 2,
+      "contradiction -> contradiction": 3,
+      "new_requirement -> new_requirement": 3
+    },
+    "cases": [
+      {
+        "expected": "new_requirement",
+        "text": "Doctor ne bola patients ko loyalty points aur referral rewards bhi chahiye.",
+        "got": [
+          "new_requirement"
+        ],
+        "primary_ok": true,
+        "any_ok": true,
+        "seconds": 2.0,
+        "related": [
+          []
+        ]
+      },
+      {
+        "expected": "new_requirement",
+        "text": "Aur UPI ke saath credit cards bhi accept karne hain.",
+        "got": [
+          "new_requirement"
+        ],
+        "primary_ok": true,
+        "any_ok": true,
+        "seconds": 1.8,
+        "related": [
+          []
+        ]
+      },
+      {
+        "expected": "already_covered",
+        "text": "Reminders WhatsApp pe hi bhejna hai.",
+        "got": [
+          "already_covered"
+        ],
+        "primary_ok": true,
+        "any_ok": true,
+        "seconds": 1.8,
+        "related": [
+          [
+            "REQ-004"
+          ]
+        ]
+      },
+      {
+        "expected": "already_covered",
+        "text": "Booking confirm hone se pehle doctor ka approval zaroori hai.",
+        "got": [
+          "already_covered"
+        ],
+        "primary_ok": true,
+        "any_ok": true,
+        "seconds": 1.9,
+        "related": [
+          [
+            "REQ-002"
+          ]
+        ]
+      },
+      {
+        "expected": "contradiction",
+        "text": "Timeline ab 12 weeks kar do, 8 weeks mein nahi hoga.",
+        "got": [
+          "contradiction"
+        ],
+        "primary_ok": true,
+        "any_ok": true,
+        "seconds": 1.8,
+        "related": [
+          [
+            "CON-001"
+          ]
+        ]
+      },
+      {
+        "expected": "contradiction",
+        "text": "Budget 3 lakh tak ja sakta hai, 1.5 lakh se kaam nahi chalega.",
+        "got": [
+          "contradiction"
+        ],
+        "primary_ok": true,
+        "any_ok": true,
+        "seconds": 1.9,
+        "related": [
+          [
+            "CON-002"
+          ]
+        ]
+      },
+      {
+        "expected": "contradiction",
+        "text": "Advance payment nahi chahiye, patient clinic mein hi pay karega.",
+        "got": [
+          "contradiction"
+        ],
+        "primary_ok": true,
+        "any_ok": true,
+        "seconds": 1.9,
+        "related": [
+          [
+            "REQ-003"
+          ]
+        ]
+      },
+      {
+        "expected": "new_requirement",
+        "text": "We also need a patient mobile app for iPhone and Android with video consultation.",
+        "got": [
+          "new_requirement",
+          "new_requirement"
+        ],
+        "primary_ok": true,
+        "any_ok": true,
+        "seconds": 2.6,
+        "related": [
+          [],
+          []
+        ]
+      }
+    ]
+  },
+  "invariants": {
+    "items": 8,
+    "never_auto_approved": true,
+    "every_item_has_evidence": true,
+    "verified_quotes": 8,
+    "verified_quotes_found_verbatim_in_source": 8,
+    "devanagari_source_present_in_chunks": true
+  }
+}

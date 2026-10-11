@@ -1,0 +1,13 @@
+10/10/2026, 10:01 - Messages and calls are end-to-end encrypted. No one outside of this chat can read them.
+10/10/2026, 10:02 - Dr. Mehra: Hi Riya, hume apne clinic ke liye ek app chahiye
+10/10/2026, 10:03 - Dr. Mehra: Patients online appointment book kar sake, phone par
+10/10/2026, 10:05 - Riya: Sure. Booking ke baad doctor ko approve karna hoga ya auto-confirm?
+10/10/2026, 10:06 - Dr. Mehra: Doctor approve karega, har booking confirm hone se pehle
+10/10/2026, 10:08 - Riya: Payment kaise lena hai?
+10/10/2026, 10:09 - Dr. Mehra: UPI se lena hai, advance payment chahiye booking ke time
+10/10/2026, 10:10 - Dr. Mehra: Cash at clinic bhi allow kar sakte hain shayad, abhi pakka nahi hai
+10/10/2026, 10:12 - Riya: Cancel karne par refund ka kya rule rahega?
+10/10/2026, 10:13 - Dr. Mehra: Wo abhi decide nahi kiya, baad me batata hoon
+10/10/2026, 10:15 - Dr. Mehra: Timeline 8 weeks hai, budget 1.5 lakh se zyada nahi
+10/10/2026, 10:16 - Riya: Reminders SMS pe bhejun?
+10/10/2026, 10:17 - Dr. Mehra: Haan WhatsApp pe reminder bhej do, SMS nahi

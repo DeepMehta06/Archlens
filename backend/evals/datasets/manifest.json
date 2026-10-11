@@ -1,0 +1,732 @@
+{
+  "conversations": [
+    {
+      "id": "clinic",
+      "file": "clinic_chat.txt",
+      "me": "Riya",
+      "language": "hinglish",
+      "facts": [
+        {
+          "id": "doctor_approval",
+          "match": [
+            [
+              "doctor",
+              "approv"
+            ],
+            [
+              "doctor",
+              "confirm"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "upi_payment",
+          "match": [
+            [
+              "upi"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "advance_payment",
+          "match": [
+            [
+              "advance"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "cash_at_clinic",
+          "match": [
+            [
+              "cash"
+            ]
+          ],
+          "hedged": true
+        },
+        {
+          "id": "timeline_8_weeks",
+          "match": [
+            [
+              "8 week"
+            ],
+            [
+              "eight week"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "budget_1_5_lakh",
+          "match": [
+            [
+              "1.5 lakh"
+            ],
+            [
+              "1,50,000"
+            ],
+            [
+              "150000"
+            ],
+            [
+              "1.5"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "whatsapp_reminders",
+          "match": [
+            [
+              "whatsapp",
+              "reminder"
+            ]
+          ],
+          "hedged": false
+        }
+      ],
+      "gap_questions": [
+        {
+          "id": "refund_rule",
+          "match": [
+            [
+              "refund"
+            ],
+            [
+              "cancel"
+            ]
+          ]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "invented_loyalty",
+          "match": [
+            [
+              "loyalty"
+            ]
+          ],
+          "scope": "title"
+        }
+      ]
+    },
+    {
+      "id": "bakery",
+      "file": "bakery_notes.txt",
+      "me": "Karan",
+      "language": "english",
+      "facts": [
+        {
+          "id": "pickup_slot_ordering",
+          "match": [
+            [
+              "pickup",
+              "slot"
+            ],
+            [
+              "online",
+              "order"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "razorpay_only",
+          "match": [
+            [
+              "razorpay"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "loyalty_stamp_card",
+          "match": [
+            [
+              "loyalty"
+            ],
+            [
+              "stamp"
+            ]
+          ],
+          "hedged": true
+        },
+        {
+          "id": "no_delivery",
+          "match": [
+            [
+              "delivery"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "diwali_deadline",
+          "match": [
+            [
+              "20 october"
+            ],
+            [
+              "diwali"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "logo_by_nephew",
+          "match": [
+            [
+              "logo"
+            ]
+          ],
+          "hedged": true
+        },
+        {
+          "id": "admin_panel_ready",
+          "match": [
+            [
+              "admin"
+            ]
+          ],
+          "hedged": false
+        }
+      ],
+      "gap_questions": [
+        {
+          "id": "tally_sync",
+          "match": [
+            [
+              "tally"
+            ]
+          ]
+        },
+        {
+          "id": "budget_missing",
+          "match": [
+            [
+              "budget"
+            ]
+          ]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "weather_small_talk",
+          "match": [
+            [
+              "rain"
+            ],
+            [
+              "weather"
+            ]
+          ],
+          "scope": "title"
+        },
+        {
+          "id": "cat_small_talk",
+          "match": [
+            [
+              "cat"
+            ]
+          ],
+          "scope": "title",
+          "whole_word": true
+        },
+        {
+          "id": "invented_whatsapp",
+          "match": [
+            [
+              "whatsapp"
+            ]
+          ],
+          "scope": "title"
+        },
+        {
+          "id": "invented_mobile_app",
+          "match": [
+            [
+              "mobile app"
+            ]
+          ],
+          "scope": "title"
+        }
+      ]
+    },
+    {
+      "id": "gym",
+      "file": "gym_chat.txt",
+      "me": "Arjun",
+      "language": "hinglish_devanagari",
+      "facts": [
+        {
+          "id": "class_booking",
+          "match": [
+            [
+              "class",
+              "book"
+            ],
+            [
+              "booking"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "max_20_per_batch",
+          "match": [
+            [
+              "20"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "paytm_upi_only",
+          "match": [
+            [
+              "paytm"
+            ],
+            [
+              "upi"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "qr_attendance",
+          "match": [
+            [
+              "qr"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "face_recognition",
+          "match": [
+            [
+              "face"
+            ]
+          ],
+          "hedged": true
+        },
+        {
+          "id": "hindi_english",
+          "match": [
+            [
+              "hindi"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "push_notifications_final",
+          "match": [
+            [
+              "push"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "republic_day_deadline",
+          "match": [
+            [
+              "20 january"
+            ],
+            [
+              "republic day"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "budget_2_lakh",
+          "match": [
+            [
+              "2 lakh"
+            ],
+            [
+              "2,00,000"
+            ],
+            [
+              "200000"
+            ]
+          ],
+          "hedged": false
+        }
+      ],
+      "gap_questions": [
+        {
+          "id": "membership_freeze",
+          "match": [
+            [
+              "freeze"
+            ]
+          ]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "invented_diet_plan",
+          "match": [
+            [
+              "diet"
+            ]
+          ],
+          "scope": "title"
+        },
+        {
+          "id": "superseded_whatsapp_notifications",
+          "match": [
+            [
+              "whatsapp"
+            ]
+          ],
+          "scope": "title",
+          "unless": [
+            [
+              "push"
+            ],
+            [
+              "not "
+            ],
+            [
+              "instead"
+            ],
+            [
+              "no "
+            ],
+            [
+              "replace"
+            ],
+            [
+              "rather"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "salon",
+      "file": "salon_chat.txt",
+      "me": "Nikhil",
+      "language": "hinglish",
+      "heldout": true,
+      "facts": [
+        {
+          "id": "service_stylist_booking",
+          "match": [
+            [
+              "stylist"
+            ],
+            [
+              "service"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "razorpay_only",
+          "match": [
+            [
+              "razorpay"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "advance_20_percent",
+          "match": [
+            [
+              "20%"
+            ],
+            [
+              "20 percent"
+            ],
+            [
+              "advance"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "memberships",
+          "match": [
+            [
+              "membership"
+            ]
+          ],
+          "hedged": true
+        },
+        {
+          "id": "english_only",
+          "match": [
+            [
+              "english"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "instagram_feed",
+          "match": [
+            [
+              "instagram"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "launch_15_april",
+          "match": [
+            [
+              "15 april"
+            ],
+            [
+              "april"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "budget_80k",
+          "match": [
+            [
+              "80,000"
+            ],
+            [
+              "80000"
+            ],
+            [
+              "80 hazaar"
+            ],
+            [
+              "80 thousand"
+            ],
+            [
+              "80k"
+            ]
+          ],
+          "hedged": false
+        }
+      ],
+      "gap_questions": [
+        {
+          "id": "cancellation_policy",
+          "match": [
+            [
+              "cancel"
+            ],
+            [
+              "refund"
+            ]
+          ]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "superseded_google_calendar",
+          "match": [
+            [
+              "google calendar"
+            ],
+            [
+              "calendar sync"
+            ]
+          ],
+          "scope": "title",
+          "unless": [
+            [
+              "not "
+            ],
+            [
+              "no "
+            ],
+            [
+              "instead"
+            ],
+            [
+              "own"
+            ],
+            [
+              "without"
+            ],
+            [
+              "remove"
+            ]
+          ]
+        },
+        {
+          "id": "marathi_language",
+          "match": [
+            [
+              "marathi"
+            ]
+          ],
+          "scope": "title",
+          "unless": [
+            [
+              "not "
+            ],
+            [
+              "no "
+            ],
+            [
+              "only"
+            ],
+            [
+              "without"
+            ],
+            [
+              "exclude"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "school",
+      "file": "school_notes.txt",
+      "me": "Divya",
+      "language": "english",
+      "heldout": true,
+      "facts": [
+        {
+          "id": "parent_portal_attendance_fees",
+          "match": [
+            [
+              "attendance"
+            ],
+            [
+              "fee"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "payu_only",
+          "match": [
+            [
+              "payu"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "homework_pdf",
+          "match": [
+            [
+              "homework"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "images_later_phase",
+          "match": [
+            [
+              "image"
+            ]
+          ],
+          "hedged": true
+        },
+        {
+          "id": "email_alerts_not_sms",
+          "match": [
+            [
+              "email"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "india_data_residency",
+          "match": [
+            [
+              "india"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "mobile_app_unsure",
+          "match": [
+            [
+              "mobile app"
+            ],
+            [
+              "responsive"
+            ]
+          ],
+          "hedged": true
+        },
+        {
+          "id": "deadline_1_july",
+          "match": [
+            [
+              "1 july"
+            ],
+            [
+              "july"
+            ]
+          ],
+          "hedged": false
+        }
+      ],
+      "gap_questions": [
+        {
+          "id": "budget_unknown",
+          "match": [
+            [
+              "budget"
+            ]
+          ]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "cafeteria_out_of_scope",
+          "match": [
+            [
+              "cafeteria"
+            ],
+            [
+              "menu"
+            ]
+          ],
+          "scope": "title"
+        },
+        {
+          "id": "superseded_sms_alerts",
+          "match": [
+            [
+              "sms"
+            ]
+          ],
+          "scope": "title",
+          "unless": [
+            [
+              "not "
+            ],
+            [
+              "no "
+            ],
+            [
+              "instead"
+            ],
+            [
+              "email"
+            ],
+            [
+              "replace"
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

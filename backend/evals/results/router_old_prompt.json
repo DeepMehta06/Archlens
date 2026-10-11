@@ -1,0 +1,54 @@
+{
+  "generated_at": "2026-10-11T07:26:57+00:00",
+  "model": "gemma4:e4b",
+  "embed_model": "embeddinggemma",
+  "ollama_health": {
+    "reachable": true,
+    "model_installed": true,
+    "embed_model_installed": true
+  },
+  "repeat": 1,
+  "router": {
+    "accuracy": "33/37",
+    "per_intent": {
+      "answer_question": "8/12",
+      "list_ledger": "4/4",
+      "open_questions": "4/4",
+      "draft_message": "3/3",
+      "create_diagram": "4/4",
+      "compare_request": "4/4",
+      "off_topic": "6/6"
+    },
+    "wrong": [
+      {
+        "expected": "answer_question",
+        "message": "appointment reminders",
+        "got": "off_topic",
+        "ok": false
+      },
+      {
+        "expected": "answer_question",
+        "message": "budget kitna hai?",
+        "got": "list_ledger",
+        "ok": false
+      },
+      {
+        "expected": "answer_question",
+        "message": "payment methods",
+        "got": "list_ledger",
+        "ok": false
+      },
+      {
+        "expected": "answer_question",
+        "message": "trainer attendance kaise hogi",
+        "got": "off_topic",
+        "ok": false
+      }
+    ],
+    "off_topic_false_positives": 2,
+    "median_seconds": 0.58
+  },
+  "suite_seconds": {
+    "router": 22.2
+  }
+}

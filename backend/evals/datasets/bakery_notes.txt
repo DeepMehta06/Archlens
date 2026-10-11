@@ -1,0 +1,12 @@
+Call notes with Anita (owner, Sweet Crumbs Bakery, Nashik), 3 March. Prepared by Karan.
+
+Anita wants an online ordering website where customers can pick a pickup slot for their cakes and bread.
+Payments only through Razorpay. She was very clear about that and does not want any other gateway.
+Maybe we add a loyalty stamp card later, but she is not sure yet and wants to see the first version.
+Delivery is not needed. Pickup only, from the shop counter.
+The site must go live before Diwali, the hard deadline is 20 October.
+She mentioned her nephew might design the logo, but nothing is decided.
+She wants an admin panel so her staff can mark orders as ready for pickup.
+Stock sync with their existing Tally accounting: she will check with her accountant whether Tally exports work and let us know.
+Small talk: it rained all week in Nashik, and her cat knocked over the display stand yesterday.
+She did not mention a budget figure at all.

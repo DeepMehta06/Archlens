@@ -123,7 +123,7 @@ curl -X POST http://127.0.0.1:8000/api/demo/seed
 | `ARCHLENS_DATA_DIR` | `./data` | SQLite database and uploads |
 | `MAX_UPLOAD_BYTES` | `20971520` | Upload size limit |
 
-`EMBED_QUERY_PREFIX` and `EMBED_DOCUMENT_PREFIX` hold EmbeddingGemma's task prompts. They were set from the model card as remembered and have **not** been verified against the live model yet.
+`EMBED_QUERY_PREFIX` and `EMBED_DOCUMENT_PREFIX` hold EmbeddingGemma's task prompts. They match Google's published EmbeddingGemma retrieval templates (`task: search result | query: ` and `title: none | text: `); Ollama's template for this model is raw, so the application adds them.
 
 ## API (prefix `/api`)
 
@@ -165,7 +165,7 @@ Single runs on one machine (RTX 4060 Laptop 8 GB, Windows 11, Ollama 0.40.2, `ge
 | Diagram from ledger | about 3 s |
 | Compare a request to a snapshot | about 2 to 3 s |
 
-Retrieval was BM25-only in these runs because `embeddinggemma` was not installed; the hybrid path is covered by tests with a fake embedder but not yet by a live run.
+The numbers above were measured with BM25-only retrieval. After installing `embeddinggemma` the chat reported `hybrid` mode and returned grounded, cited answers for English and Hinglish questions on the demo chat (four ad hoc queries, one of which returned no output). Retrieval quality has not been measured; no recall figures exist yet.
 
 ## Tests
 
@@ -174,13 +174,17 @@ cd backend
 pytest
 ```
 
-82 tests covering the WhatsApp parser, chunking, hedges, quote verification, RRF, FTS5 (including Hindi), hybrid retrieval and BM25-only fallback, extraction provenance, the full HTTP flow, project isolation, chat streaming and grounding, and the Mermaid compiler. The model is faked, so no Ollama server is needed.
+83 tests covering the WhatsApp parser, chunking, hedges, quote verification, RRF, FTS5 (including Hindi), hybrid retrieval and BM25-only fallback, extraction provenance, the full HTTP flow, project isolation, chat streaming and grounding, and the Mermaid compiler. The model is faked, so no Ollama server is needed.
+
+## Evaluation
+
+A live harness (`backend/evals`) measures extraction recall, hedge handling, router accuracy, retrieval (BM25 vs dense vs hybrid) and change detection on small synthetic sets. Results, caveats and held-out numbers are in [docs/EVALUATION.md](docs/EVALUATION.md); backend internals are in [docs/BACKEND.md](docs/BACKEND.md).
 
 ## Not built yet
 
 - **Frontend rebuild** (the chat-first, light glassmorphic interface). The existing `frontend/` is the previous version.
 - **Image and audio ingestion.** Gemma 4 e4b accepts both through Ollama, but the pipeline does not use them yet. Audio must go in the `images` field; the `audio` field is silently ignored by `/api/chat`.
-- PDF, OCR boxes, speaker diarization, reranking, chat-driven approvals (by design), live hybrid retrieval verification, and an extraction quality evaluation.
+- PDF, OCR boxes, speaker diarization, reranking, chat-driven approvals (by design), a retrieval and extraction quality evaluation.
 - Duplicate detection is title similarity only, so paraphrased duplicates are not merged.
 - The extraction can miss items (in the demo run the unresolved refund rule became a question but not an item).
 

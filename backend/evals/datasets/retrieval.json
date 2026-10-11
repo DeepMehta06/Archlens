@@ -1,0 +1,122 @@
+[
+  {
+    "kind": "en_direct",
+    "query": "which payment methods does the clinic want",
+    "conversation": "clinic",
+    "expect": "UPI se lena hai"
+  },
+  {
+    "kind": "hinglish_direct",
+    "query": "doctor ko booking approve karni hogi kya",
+    "conversation": "clinic",
+    "expect": "Doctor approve karega"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "how will patients pay upfront",
+    "conversation": "clinic",
+    "expect": "advance payment chahiye"
+  },
+  {
+    "kind": "hinglish_direct",
+    "query": "reminder kis channel pe bhejna hai",
+    "conversation": "clinic",
+    "expect": "WhatsApp pe reminder"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "what is the maximum amount the client can spend",
+    "conversation": "clinic",
+    "expect": "budget 1.5 lakh"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "how long do we have to finish the project",
+    "conversation": "clinic",
+    "expect": "Timeline 8 weeks"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "what happens to the money if a patient cancels",
+    "conversation": "clinic",
+    "expect": "refund ka kya rule"
+  },
+  {
+    "kind": "en_direct",
+    "query": "which payment gateway must be used",
+    "conversation": "bakery",
+    "expect": "Razorpay"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "can customers get their cakes brought to their home",
+    "conversation": "bakery",
+    "expect": "Delivery is not needed"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "what is the hard cut-off date for launch",
+    "conversation": "bakery",
+    "expect": "20 October"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "how will employees mark an order finished",
+    "conversation": "bakery",
+    "expect": "admin panel"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "who might create the brand mark",
+    "conversation": "bakery",
+    "expect": "nephew might design the logo"
+  },
+  {
+    "kind": "en_direct",
+    "query": "tally accounting stock sync",
+    "conversation": "bakery",
+    "expect": "Tally"
+  },
+  {
+    "kind": "hinglish_direct",
+    "query": "gym mein ek batch me kitne log",
+    "conversation": "gym",
+    "expect": "maximum 20 log"
+  },
+  {
+    "kind": "hinglish_direct",
+    "query": "trainer attendance kaise hogi",
+    "conversation": "gym",
+    "expect": "QR code"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "which languages should the app support",
+    "conversation": "gym",
+    "expect": "हिंदी और अंग्रेज़ी"
+  },
+  {
+    "kind": "hinglish_direct",
+    "query": "notification WhatsApp ya push",
+    "conversation": "gym",
+    "expect": "push notification hi rakho"
+  },
+  {
+    "kind": "hinglish_direct",
+    "query": "membership freeze ka kya hua",
+    "conversation": "gym",
+    "expect": "partner se puchna"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "is facial recognition decided",
+    "conversation": "gym",
+    "expect": "Face recognition"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "what is the spending ceiling for the gym app",
+    "conversation": "gym",
+    "expect": "Budget 2 lakh"
+  }
+]

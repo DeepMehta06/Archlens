@@ -1,0 +1,34 @@
+[
+  {
+    "expected": "new_requirement",
+    "text": "Doctor ne bola patients ko loyalty points aur referral rewards bhi chahiye."
+  },
+  {
+    "expected": "new_requirement",
+    "text": "Aur UPI ke saath credit cards bhi accept karne hain."
+  },
+  {
+    "expected": "already_covered",
+    "text": "Reminders WhatsApp pe hi bhejna hai."
+  },
+  {
+    "expected": "already_covered",
+    "text": "Booking confirm hone se pehle doctor ka approval zaroori hai."
+  },
+  {
+    "expected": "contradiction",
+    "text": "Timeline ab 12 weeks kar do, 8 weeks mein nahi hoga."
+  },
+  {
+    "expected": "contradiction",
+    "text": "Budget 3 lakh tak ja sakta hai, 1.5 lakh se kaam nahi chalega."
+  },
+  {
+    "expected": "contradiction",
+    "text": "Advance payment nahi chahiye, patient clinic mein hi pay karega."
+  },
+  {
+    "expected": "new_requirement",
+    "text": "We also need a patient mobile app for iPhone and Android with video consultation."
+  }
+]

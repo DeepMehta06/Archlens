@@ -1,0 +1,15 @@
+14/01/2026, 18:02 - Messages and calls are end-to-end encrypted. No one outside of this chat can read them.
+14/01/2026, 18:03 - Sandeep (FitZone): Namaste Arjun, mere gym ke members ke liye ek app chahiye, class booking ke liye
+14/01/2026, 18:04 - Sandeep (FitZone): Ek batch mein maximum 20 log, ye fixed hai, isse zyada nahi
+14/01/2026, 18:06 - Arjun: Payment ka kya plan hai?
+14/01/2026, 18:07 - Sandeep (FitZone): Payment sirf Paytm aur UPI se, card bilkul nahi chahiye
+14/01/2026, 18:09 - Sandeep (FitZone): Trainer ki attendance QR code se hogi
+14/01/2026, 18:10 - Sandeep (FitZone): Face recognition bhi shayad baad mein dekhenge, abhi pakka nahi hai
+14/01/2026, 18:12 - Sandeep (FitZone): हमें ऐप हिंदी और अंग्रेज़ी दोनों भाषाओं में चाहिए
+14/01/2026, 18:14 - Arjun: Notifications WhatsApp pe bhejein?
+14/01/2026, 18:15 - Sandeep (FitZone): Haan WhatsApp pe hi bhejna
+14/01/2026, 18:21 - Sandeep (FitZone): Nahi nahi, WhatsApp ka kharcha zyada hai, push notification hi rakho. Ye final hai
+14/01/2026, 18:23 - Arjun: Membership freeze ka option dena hai kya?
+14/01/2026, 18:24 - Sandeep (FitZone): Pata nahi yaar, partner se puchna padega
+14/01/2026, 18:26 - Sandeep (FitZone): Launch Republic Day se pehle chahiye, 20 January final hai
+14/01/2026, 18:27 - Sandeep (FitZone): Budget 2 lakh se zyada nahi

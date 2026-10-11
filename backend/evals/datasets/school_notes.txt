@@ -1,0 +1,11 @@
+Meeting notes: Greenfield Public School, Pune. Attendees: Mr. Kulkarni (principal), Divya (project lead). 18 June.
+
+The school needs a parent portal where parents can view their child's attendance and fee dues.
+Fee payments must work through the school's existing PayU account. No other gateway will be integrated.
+Teachers should be able to upload homework as PDF files; the principal said maybe images could be allowed in a later phase.
+SMS alerts for absence were requested at first, but the principal later decided on email only because of cost.
+Data must stay on servers located in India. This is a policy requirement from the trustees.
+The principal is not sure whether a mobile app is needed or if a responsive website is enough.
+The portal must be ready before the new academic session starts on 1 July.
+No budget figure was shared; Mr. Kulkarni will check with the trustees.
+Divya noted that the school cafeteria menu was discussed briefly, but it is out of scope.

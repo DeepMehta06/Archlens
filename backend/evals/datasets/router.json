@@ -1,0 +1,150 @@
+[
+  {
+    "expected": "answer_question",
+    "message": "what did the client say about payments?"
+  },
+  {
+    "expected": "answer_question",
+    "message": "payment kaise hoga?"
+  },
+  {
+    "expected": "answer_question",
+    "message": "appointment reminders"
+  },
+  {
+    "expected": "answer_question",
+    "message": "refund policy"
+  },
+  {
+    "expected": "answer_question",
+    "message": "budget kitna hai?"
+  },
+  {
+    "expected": "answer_question",
+    "message": "who approves bookings"
+  },
+  {
+    "expected": "answer_question",
+    "message": "kya client ne SMS ke liye bola tha?"
+  },
+  {
+    "expected": "answer_question",
+    "message": "deadline kab hai"
+  },
+  {
+    "expected": "answer_question",
+    "message": "is the timeline fixed or flexible?"
+  },
+  {
+    "expected": "answer_question",
+    "message": "payment methods"
+  },
+  {
+    "expected": "answer_question",
+    "message": "trainer attendance kaise hogi"
+  },
+  {
+    "expected": "answer_question",
+    "message": "what does the client mean by pickup slot"
+  },
+  {
+    "expected": "list_ledger",
+    "message": "show me all requirements"
+  },
+  {
+    "expected": "list_ledger",
+    "message": "ledger dikhao"
+  },
+  {
+    "expected": "list_ledger",
+    "message": "list the approved items"
+  },
+  {
+    "expected": "list_ledger",
+    "message": "kya kya scope mein hai?"
+  },
+  {
+    "expected": "open_questions",
+    "message": "what is still unclear?"
+  },
+  {
+    "expected": "open_questions",
+    "message": "kya kya clear nahi hai"
+  },
+  {
+    "expected": "open_questions",
+    "message": "what should I ask the client?"
+  },
+  {
+    "expected": "open_questions",
+    "message": "show open questions"
+  },
+  {
+    "expected": "draft_message",
+    "message": "write a message to the client asking about refunds"
+  },
+  {
+    "expected": "draft_message",
+    "message": "client ko Hinglish mein message likh do jisme saare sawal ho"
+  },
+  {
+    "expected": "draft_message",
+    "message": "draft an email to the client to clarify the open points"
+  },
+  {
+    "expected": "create_diagram",
+    "message": "draw an architecture diagram"
+  },
+  {
+    "expected": "create_diagram",
+    "message": "sequence diagram banao booking flow ka"
+  },
+  {
+    "expected": "create_diagram",
+    "message": "generate an ER diagram of the data"
+  },
+  {
+    "expected": "create_diagram",
+    "message": "make a component diagram"
+  },
+  {
+    "expected": "compare_request",
+    "message": "client now wants loyalty points, is that in scope?"
+  },
+  {
+    "expected": "compare_request",
+    "message": "ye naya request scope me hai kya: customers ko referral rewards chahiye"
+  },
+  {
+    "expected": "compare_request",
+    "message": "does this change the approved scope: they also want credit cards"
+  },
+  {
+    "expected": "compare_request",
+    "message": "check if adding a chat feature is a scope change"
+  },
+  {
+    "expected": "off_topic",
+    "message": "write me a python function to reverse a string"
+  },
+  {
+    "expected": "off_topic",
+    "message": "who won the cricket world cup"
+  },
+  {
+    "expected": "off_topic",
+    "message": "what is the capital of France"
+  },
+  {
+    "expected": "off_topic",
+    "message": "kal ka mausam kaisa rahega"
+  },
+  {
+    "expected": "off_topic",
+    "message": "tell me a joke"
+  },
+  {
+    "expected": "off_topic",
+    "message": "explain how transformers work"
+  }
+]

@@ -1,0 +1,14 @@
+22/02/2026, 11:00 - Messages and calls are end-to-end encrypted. No one outside of this chat can read them.
+22/02/2026, 11:02 - Meera (Glow Salon): Hi Nikhil, mere salon ke liye booking website banani hai
+22/02/2026, 11:03 - Meera (Glow Salon): Customers service choose karein aur stylist bhi select kar sakein
+22/02/2026, 11:05 - Nikhil: Payment online lena hai ya salon mein?
+22/02/2026, 11:06 - Meera (Glow Salon): Online sirf Razorpay se, aur 20% advance lena hai
+22/02/2026, 11:08 - Meera (Glow Salon): Memberships ka option bhi hoga shayad, abhi socha nahi hai
+22/02/2026, 11:10 - Nikhil: Website ki language?
+22/02/2026, 11:11 - Meera (Glow Salon): Sirf English mein, Marathi nahi chahiye
+22/02/2026, 11:13 - Meera (Glow Salon): Instagram feed homepage pe dikhana hai
+22/02/2026, 11:15 - Meera (Glow Salon): Pehle bola tha Google Calendar sync chahiye, par ab nahi chahiye, salon ka apna calendar use karenge
+22/02/2026, 11:18 - Nikhil: Cancellation policy?
+22/02/2026, 11:19 - Meera (Glow Salon): Abhi decide nahi kiya, accountant se baat karke batati hoon
+22/02/2026, 11:21 - Meera (Glow Salon): Launch 15 April se pehle hona chahiye, wedding season hai
+22/02/2026, 11:22 - Meera (Glow Salon): Budget 80 hazaar rupaye, isse zyada nahi
