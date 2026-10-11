@@ -95,6 +95,11 @@ class RouterOutput(BaseModel):
     language: Optional[Literal["english", "hinglish"]] = None
 
 
+class ReformulateOutput(BaseModel):
+    give_up: bool
+    query: Optional[str] = None
+
+
 # ---------------------------------------------------------------------------
 # API payloads
 # ---------------------------------------------------------------------------

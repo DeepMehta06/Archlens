@@ -380,6 +380,7 @@ async def test_chat_says_not_found_instead_of_inventing_when_nothing_is_retrieve
     client, llm, _ = env
     project_id, _, _ = await ready_project(client)
     llm.queue_json({"intent": "answer_question", "query": "kubernetes helm charts"})
+    llm.queue_json({"give_up": True})
 
     events = parse_sse((await client.post(f"/api/projects/{project_id}/chat", json={"message": "kubernetes helm charts?"})).text)
 
@@ -387,6 +388,27 @@ async def test_chat_says_not_found_instead_of_inventing_when_nothing_is_retrieve
     assert "couldn't find anything" in text
     assert not any(c["kind"] for e in events if e["type"] == "citations" for c in e["citations"])
     assert not [c for c in llm.calls if c["kind"] == "stream"]
+    reformulate_calls = [c for c in llm.calls if c["kind"] == "json" and c["model"] == "ReformulateOutput"]
+    assert len(reformulate_calls) == 1
+
+
+async def test_chat_reformulates_the_query_once_when_the_first_search_finds_nothing(env):
+    client, llm, _ = env
+    project_id, _, _ = await ready_project(client)
+    llm.queue_json({"intent": "answer_question", "query": "wapsi ki niyam"})
+    llm.queue_json({"give_up": False, "query": "refund"})
+    llm.queue_text("Client ne refund ka rule abhi decide nahi kiya [C1].")
+
+    events = parse_sse(
+        (await client.post(f"/api/projects/{project_id}/chat", json={"message": "wapsi ki niyam kya hai?"})).text
+    )
+
+    stages = [e.get("stage") for e in events if e["type"] == "status"]
+    assert stages == ["routing", "searching", "reformulating", "searching", "writing"]
+    citations = next(e for e in events if e["type"] == "citations")
+    assert citations["grounded"] is True
+    answer_prompt = llm.calls[-1]["messages"][-1]["content"]
+    assert "refund" in answer_prompt.lower()
 
 
 async def test_chat_cards_for_ledger_questions_draft_and_diagram(env):

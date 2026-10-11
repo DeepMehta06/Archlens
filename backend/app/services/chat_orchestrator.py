@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from app.enums import ApprovalStatus, ChatRole, QuestionPriority, QuestionStatus
 from app.logging_config import get_logger
 from app.models import ChatMessage, ChatThread, LedgerItem, Project, Question, ScopeSnapshot
-from app.schemas import RouterOutput
+from app.schemas import ReformulateOutput, RouterOutput
 from app.services import ledger
 from app.services.change_detection import compare_request
 from app.services.diagrams import NothingToDraw, generate_diagram
@@ -34,6 +34,7 @@ LONG_PASTE_CHARS = 800
 MAX_LIST_ITEMS = 30
 MAX_DRAFT_QUESTIONS = 8
 PASSAGE_CHARS = 700
+MAX_QUERY_REFORMULATIONS = 1
 MARKER = re.compile(r"\[([CL]\d+)\]")
 PRIORITY_ORDER = {QuestionPriority.HIGH: 0, QuestionPriority.MEDIUM: 1, QuestionPriority.LOW: 2}
 
@@ -113,6 +114,24 @@ async def route(llm: Any, message: str) -> RouterOutput:
         return RouterOutput(intent="answer_question", query=message)
 
 
+async def _reformulate_query(llm: Any, question: str, failed_query: str) -> Optional[str]:
+    messages = [
+        {"role": "system", "content": load_prompt("reformulate_query")},
+        {
+            "role": "user",
+            "content": f"ORIGINAL QUESTION: {question[:500]}\nSEARCH QUERY THAT FOUND NOTHING: {failed_query[:300]}",
+        },
+    ]
+    try:
+        result = await llm.chat_json(messages, ReformulateOutput, stage="reformulate_query", temperature=0.0, think=False)
+    except OllamaBadResponse:
+        return None
+    if result.give_up or not result.query:
+        return None
+    reformulated = result.query.strip()[:300]
+    return reformulated or None
+
+
 def _item_card(item: LedgerItem, open_questions: int) -> dict[str, Any]:
     out = ledger.to_item_out(item, open_questions)
     return {
@@ -140,6 +159,19 @@ async def _answer(
     yield {"type": "status", "stage": "searching"}
     found = await deps.retriever.search_chunks(session, project_id, query, top_k=6)
     item_hits = await deps.retriever.search_items(session, project_id, query, top_k=4)
+
+    for _ in range(MAX_QUERY_REFORMULATIONS):
+        if found.hits or item_hits:
+            break
+        yield {"type": "status", "stage": "reformulating"}
+        reformulated = await _reformulate_query(deps.llm, question, query)
+        if not reformulated or reformulated.casefold() == query.casefold():
+            break
+        query = reformulated
+        yield {"type": "status", "stage": "searching"}
+        found = await deps.retriever.search_chunks(session, project_id, query, top_k=6)
+        item_hits = await deps.retriever.search_items(session, project_id, query, top_k=4)
+
     if not found.hits and not item_hits:
         yield _say(state, "I couldn't find anything about that in this project's sources.")
         return

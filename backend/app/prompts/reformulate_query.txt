@@ -1,0 +1,11 @@
+The first search against this project's sources for the user's question found nothing.
+
+You will be given the original question and the search query that found nothing. Propose one
+different search query more likely to match how the client actually phrased this in chat --
+shorter, plainer, or using a different word the client might have used (e.g. a brand name,
+Hinglish phrasing, or a synonym). Do not invent any client detail that was not in the question.
+
+If the question is clearly unrelated to what a project source could contain, or you cannot think
+of a meaningfully different query, set "give_up" to true and leave "query" empty.
+
+Return only JSON that matches the schema.
