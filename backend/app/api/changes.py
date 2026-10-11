@@ -1,11 +1,12 @@
 """Approved-scope snapshots and incoming-request comparison."""
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.deps import get_embedder, get_llm, get_retriever, project_or_404
 from app.models import ChangeReport, ScopeSnapshot
+from app.rate_limit import limiter, llm_limit
 from app.schemas import (
     ChangeReportOut,
     ChangeResult,
@@ -56,7 +57,9 @@ async def list_snapshots(project_id: str, session: AsyncSession = Depends(get_db
 
 
 @router.post("/projects/{project_id}/compare", response_model=ChangeReportOut)
+@limiter.limit(llm_limit)
 async def compare(
+    request: Request,
     project_id: str,
     body: CompareRequest,
     session: AsyncSession = Depends(get_db),

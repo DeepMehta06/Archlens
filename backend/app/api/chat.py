@@ -2,12 +2,13 @@
 import json
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 
 from app.deps import get_chat_deps
 from app.models import ChatMessage, ChatThread, Project
+from app.rate_limit import limiter, llm_limit
 from app.schemas import ChatMessageOut, ChatRequest
 from app.services.chat_orchestrator import ChatDeps, get_or_create_thread, run_turn
 
@@ -19,7 +20,10 @@ def _sse(event: dict) -> str:
 
 
 @router.post("/projects/{project_id}/chat")
-async def chat(project_id: str, body: ChatRequest, deps: ChatDeps = Depends(get_chat_deps)) -> StreamingResponse:
+@limiter.limit(llm_limit)
+async def chat(
+    request: Request, project_id: str, body: ChatRequest, deps: ChatDeps = Depends(get_chat_deps)
+) -> StreamingResponse:
     async with deps.session_factory() as session:
         if await session.get(Project, project_id) is None:
             raise HTTPException(status_code=404, detail="Project not found")

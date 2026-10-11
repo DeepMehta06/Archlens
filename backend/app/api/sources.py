@@ -1,7 +1,7 @@
 """Source import (pasted text, WhatsApp exports) and job status."""
 from typing import Optional
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Request, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -9,6 +9,7 @@ from app.config import get_settings
 from app.database import get_db
 from app.deps import get_embedder, get_llm, get_session_factory_dep, project_or_404
 from app.models import Job, Source, SourceChunk
+from app.rate_limit import limiter, llm_limit
 from app.schemas import ChunkOut, JobOut, SourceCreated, SourceOut, SourceTextCreate, SourceUpdate
 from app.services.embeddings import EmbeddingService
 from app.services.jobs import create_job
@@ -58,7 +59,9 @@ async def list_sources(project_id: str, session: AsyncSession = Depends(get_db))
 @router.post(
     "/projects/{project_id}/sources", response_model=SourceCreated, status_code=status.HTTP_201_CREATED
 )
+@limiter.limit(llm_limit)
 async def add_text_source(
+    request: Request,
     project_id: str,
     body: SourceTextCreate,
     background: BackgroundTasks,
@@ -75,7 +78,9 @@ async def add_text_source(
 @router.post(
     "/projects/{project_id}/sources/upload", response_model=SourceCreated, status_code=status.HTTP_201_CREATED
 )
+@limiter.limit(llm_limit)
 async def upload_source(
+    request: Request,
     project_id: str,
     background: BackgroundTasks,
     file: UploadFile = File(...),

@@ -1,7 +1,9 @@
 """Hybrid retrieval: FTS5 BM25 plus dense embeddings fused with Reciprocal Rank Fusion.
 
 Every query is filtered by project. RRF combines ranks only. If the embedding model is
-unavailable the result is explicitly reported as ``bm25_only``.
+unavailable the result is explicitly reported as ``bm25_only``. The dense channel itself
+uses an ANN index above ``ANN_MIN_VECTORS`` per project (see ``ann_index.py``) and exact
+brute-force cosine below it; either way the result shape is the same.
 """
 from typing import Any, Literal, Optional
 
@@ -13,7 +15,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import Settings, get_settings
 from app.models import LedgerItem, Source, SourceChunk
 from app.services import lexical_search
-from app.services.embeddings import EmbeddingService, cosine_top_k
+from app.services.ann_index import AnnIndexService
+from app.services.embeddings import EmbeddingService
 from app.services.rrf import reciprocal_rank_fusion
 
 
@@ -36,9 +39,15 @@ class RetrievalResult(BaseModel):
 
 
 class Retriever:
-    def __init__(self, embedder: EmbeddingService, settings: Optional[Settings] = None):
+    def __init__(
+        self,
+        embedder: EmbeddingService,
+        settings: Optional[Settings] = None,
+        ann: Optional[AnnIndexService] = None,
+    ):
         self._embedder = embedder
         self._settings = settings or get_settings()
+        self._ann = ann or AnnIndexService(self._settings)
 
     async def mode(self) -> Literal["hybrid", "bm25_only"]:
         return "hybrid" if await self._embedder.available() else "bm25_only"
@@ -60,7 +69,8 @@ class Retriever:
             return []
         ids = [r[0] for r in rows]
         matrix = np.asarray([r[1] for r in rows], dtype=np.float32)
-        return [chunk_id for chunk_id, _ in cosine_top_k(query_vector, ids, matrix, limit)]
+        hits = await self._ann.search(project_id, ids, matrix, query_vector, limit)
+        return [chunk_id for chunk_id, _ in hits]
 
     async def search_chunks(
         self, session: AsyncSession, project_id: str, query: str, top_k: Optional[int] = None

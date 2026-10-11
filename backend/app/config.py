@@ -38,6 +38,16 @@ class Settings(BaseSettings):
     RRF_DENSE_WEIGHT: float = 2.0
     RETRIEVAL_TOP_K: int = 10
 
+    ANN_ENABLED: bool = True
+    ANN_MIN_VECTORS: int = 500
+    ANN_M: int = 16
+    ANN_EF_CONSTRUCTION: int = 200
+    ANN_EF_SEARCH: int = 64
+
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_DEFAULT: str = "60/minute"
+    RATE_LIMIT_LLM: str = "10/minute"
+
     ALLOWED_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
     @property

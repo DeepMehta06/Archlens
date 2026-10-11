@@ -1,3 +1,7 @@
+import os
+
+os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
+
 import pytest
 
 from app.database import init_db, make_engine, make_session_factory

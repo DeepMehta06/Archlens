@@ -1,7 +1,7 @@
 """Clarification questions and the client message draft."""
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +9,7 @@ from app.database import get_db
 from app.deps import get_llm, project_or_404
 from app.enums import QuestionPriority, QuestionStatus
 from app.models import Question
+from app.rate_limit import limiter, llm_limit
 from app.schemas import DraftOut, DraftRequest, QuestionOut, QuestionPatch
 from app.services.draft_message import draft_message
 
@@ -45,7 +46,9 @@ async def patch_question(
 
 
 @router.post("/projects/{project_id}/draft-message", response_model=DraftOut)
+@limiter.limit(llm_limit)
 async def draft(
+    request: Request,
     project_id: str,
     body: DraftRequest,
     session: AsyncSession = Depends(get_db),

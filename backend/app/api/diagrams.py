@@ -1,11 +1,12 @@
 """Diagram generation from the scope ledger."""
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.deps import get_llm, project_or_404
 from app.models import Diagram
+from app.rate_limit import limiter, llm_limit
 from app.schemas import DiagramCreate, DiagramOut
 from app.services.diagrams import NothingToDraw, generate_diagram
 
@@ -15,7 +16,9 @@ router = APIRouter(prefix="/api", tags=["diagrams"])
 @router.post(
     "/projects/{project_id}/diagrams", response_model=DiagramOut, status_code=status.HTTP_201_CREATED
 )
+@limiter.limit(llm_limit)
 async def create_diagram(
+    request: Request,
     project_id: str,
     body: DiagramCreate,
     session: AsyncSession = Depends(get_db),

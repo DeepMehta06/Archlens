@@ -4,12 +4,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.api import changes, chat, demo, diagrams, exports, health, ledger, projects, questions, sources
 from app.config import get_settings
 from app.database import get_engine, init_db
 from app.deps import get_llm
 from app.logging_config import configure_logging, get_logger
+from app.rate_limit import limiter
 from app.services.ollama_client import OllamaError
 
 configure_logging()
@@ -49,6 +53,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 
 
 @app.exception_handler(OllamaError)
