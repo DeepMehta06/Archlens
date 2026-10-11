@@ -1,0 +1,12 @@
+Discovery call notes: SwiftHaul Logistics (Mr. Desai, operations head). Attended by Sneha.
+
+The company wants a fleet tracking dashboard that shows live GPS positions of trucks on a map.
+The driver app must be Android only; iOS is not required because all drivers use company Android phones.
+Customers should get SMS alerts when a delivery is close, sent through their existing Twilio account.
+Mr. Desai said possibly fuel-cost reports could be added in a later release, nothing is final.
+Trip history must be retained for exactly 2 years, which is a compliance requirement.
+Dashboard login was first planned through Google sign-in; he later decided on email and password only.
+The number of vehicles to be tracked is not known yet, he will get it from the fleet manager.
+Billing and invoicing are out of scope, they stay in Tally.
+Delivery target is the end of Q2. No budget was discussed.
+He also talked about his daughter's cricket tournament at length.

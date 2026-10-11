@@ -25,6 +25,7 @@ from typing import Any, Optional
 
 from sqlalchemy import select
 
+from app.config import get_settings
 from app.database import init_db, make_engine, make_session_factory
 from app.enums import ApprovalStatus
 from app.models import EvidenceLink, LedgerItem, Project, Question, SourceChunk
@@ -43,6 +44,17 @@ DATA = ROOT / "datasets"
 RESULTS = ROOT / "results"
 SUITES = ("extraction", "router", "retrieval", "compare", "invariants")
 RETRIEVAL_CHUNK_CHARS = 300
+
+
+def stats(values: list[Optional[int]]) -> dict[str, Any]:
+    n = len(values)
+    return {
+        "recall@1": round(sum(1 for v in values if v == 1) / n, 3),
+        "recall@3": round(sum(1 for v in values if v and v <= 3) / n, 3),
+        "mrr": round(sum(1 / v for v in values if v) / n, 3),
+        "n": n,
+    }
+
 
 
 def load(name: str) -> Any:
@@ -276,6 +288,7 @@ async def run_retrieval(env: Env) -> dict[str, Any]:
 
         modes = ("bm25", "dense", "hybrid")
         ranks: dict[str, list[Optional[int]]] = {m: [] for m in modes}
+        by_split: dict[str, dict[str, list[Optional[int]]]] = defaultdict(lambda: {m: [] for m in modes})
         by_kind: dict[str, dict[str, list[Optional[int]]]] = defaultdict(lambda: {m: [] for m in modes})
         details = []
         async with factory() as session:
@@ -294,25 +307,32 @@ async def run_retrieval(env: Env) -> dict[str, Any]:
                     rank = next((n for n, h in enumerate(ordered, start=1) if needle in h.text.casefold()), None)
                     ranks[mode].append(rank)
                     by_kind[q["kind"]][mode].append(rank)
+                    by_split[q.get("split", "dev")][mode].append(rank)
                     row[mode] = rank
                 row["relevant_found"] = bool(relevant)
                 details.append(row)
+
+        sweep: dict[str, Any] = {}
+        async with factory() as session:
+            for weight in (1.0, 1.5, 2.0, 3.0):
+                tuned = Retriever(env.embedder, settings=get_settings().model_copy(update={"RRF_DENSE_WEIGHT": weight}))
+                per_split: dict[str, list[Optional[int]]] = defaultdict(list)
+                for q in queries:
+                    found = await tuned.search_chunks(session, project_id, q["query"], top_k=30)
+                    needle = q["expect"].casefold()
+                    per_split[q.get("split", "dev")].append(
+                        next((n for n, h in enumerate(found.hits, start=1) if needle in h.text.casefold()), None)
+                    )
+                sweep[f"dense_weight_{weight}"] = {k: stats(v) for k, v in per_split.items()}
     finally:
         await engine.dispose()
-
-    def stats(values: list[Optional[int]]) -> dict[str, Any]:
-        n = len(values)
-        return {
-            "recall@1": round(sum(1 for v in values if v == 1) / n, 3),
-            "recall@3": round(sum(1 for v in values if v and v <= 3) / n, 3),
-            "mrr": round(sum(1 / v for v in values if v) / n, 3),
-            "n": n,
-        }
 
     return {
         "chunks_indexed": total_chunks,
         "chunk_chars": RETRIEVAL_CHUNK_CHARS,
+        "fusion_sweep": sweep,
         "overall": {m: stats(v) for m, v in ranks.items()},
+        "by_split": {k: {m: stats(v) for m, v in modes_.items()} for k, modes_ in by_split.items()},
         "by_query_kind": {k: {m: stats(v) for m, v in modes_.items()} for k, modes_ in by_kind.items()},
         "misses": [d for d in details if d["hybrid"] is None or d["hybrid"] > 3],
     }

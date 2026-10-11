@@ -6,7 +6,7 @@ ArchLens turns messy client conversations (pasted notes, WhatsApp exports, Hingl
 
 Everything runs against a local [Ollama](https://ollama.com) server. No cloud AI provider is called.
 
-> **Status (backend v0.2):** the backend is complete for text and WhatsApp input and has been exercised end to end against live `gemma4:e4b`. **The frontend has not been rebuilt yet**: the `frontend/` folder is the previous version and does not match this API. Image, audio and PDF import are not implemented. See [Not built yet](#not-built-yet).
+> **Status (backend v0.2):** the backend is complete for text and WhatsApp input and has been exercised end to end against live `gemma4:e4b`. **The frontend has not been rebuilt yet**: the `frontend/` folder is the previous version and does not match this API. PDF, image and WAV import work on generated test files. See [Not built yet](#not-built-yet).
 
 ---
 
@@ -133,7 +133,7 @@ curl -X POST http://127.0.0.1:8000/api/demo/seed
 | POST / GET | `/projects` | Create / list |
 | GET / PATCH / DELETE | `/projects/{id}` | Read / update / delete with its data and search index |
 | GET / POST | `/projects/{id}/sources` | List / add pasted text (JSON) |
-| POST | `/projects/{id}/sources/upload` | `.txt` or `.md` upload (WhatsApp exports) |
+| POST | `/projects/{id}/sources/upload` | `.txt`, `.md`, `.pdf`, `.png`, `.jpg`, `.webp` or `.wav` upload |
 | GET / PATCH | `/projects/{id}/sources/{sid}` | Source with chunks / set which sender is "you" |
 | GET | `/jobs/{id}` | Real stage and progress of ingestion |
 | GET | `/projects/{id}/ledger` | Items, filterable by status and type |
@@ -174,7 +174,7 @@ cd backend
 pytest
 ```
 
-83 tests covering the WhatsApp parser, chunking, hedges, quote verification, RRF, FTS5 (including Hindi), hybrid retrieval and BM25-only fallback, extraction provenance, the full HTTP flow, project isolation, chat streaming and grounding, and the Mermaid compiler. The model is faked, so no Ollama server is needed.
+90 tests covering the WhatsApp parser, chunking, hedges, quote verification, RRF, FTS5 (including Hindi), hybrid retrieval and BM25-only fallback, extraction provenance, the full HTTP flow, project isolation, chat streaming and grounding, and the Mermaid compiler. The model is faked, so no Ollama server is needed.
 
 ## Evaluation
 
@@ -183,8 +183,8 @@ A live harness (`backend/evals`) measures extraction recall, hedge handling, rou
 ## Not built yet
 
 - **Frontend rebuild** (the chat-first, light glassmorphic interface). The existing `frontend/` is the previous version.
-- **Image and audio ingestion.** Gemma 4 e4b accepts both through Ollama, but the pipeline does not use them yet. Audio must go in the `images` field; the `audio` field is silently ignored by `/api/chat`.
-- PDF, OCR boxes, speaker diarization, reranking, chat-driven approvals (by design), a retrieval and extraction quality evaluation.
+- **Real-world media testing.** PDF, image and WAV import work end to end on generated files only; real photos, noisy audio, Hinglish speech and other audio formats are untested. Audio goes in the Ollama `images` field (the `audio` field is silently ignored).
+- OCR boxes, speaker diarization, reranking, chat-driven approvals (by design), a retrieval and extraction quality evaluation.
 - Duplicate detection is title similarity only, so paraphrased duplicates are not merged.
 - The extraction can miss items (in the demo run the unresolved refund rule became a question but not an item).
 

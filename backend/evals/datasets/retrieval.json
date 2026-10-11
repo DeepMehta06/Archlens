@@ -3,120 +3,245 @@
     "kind": "en_direct",
     "query": "which payment methods does the clinic want",
     "conversation": "clinic",
-    "expect": "UPI se lena hai"
+    "expect": "UPI se lena hai",
+    "split": "dev"
   },
   {
     "kind": "hinglish_direct",
     "query": "doctor ko booking approve karni hogi kya",
     "conversation": "clinic",
-    "expect": "Doctor approve karega"
+    "expect": "Doctor approve karega",
+    "split": "dev"
   },
   {
     "kind": "en_paraphrase",
     "query": "how will patients pay upfront",
     "conversation": "clinic",
-    "expect": "advance payment chahiye"
+    "expect": "advance payment chahiye",
+    "split": "dev"
   },
   {
     "kind": "hinglish_direct",
     "query": "reminder kis channel pe bhejna hai",
     "conversation": "clinic",
-    "expect": "WhatsApp pe reminder"
+    "expect": "WhatsApp pe reminder",
+    "split": "dev"
   },
   {
     "kind": "en_paraphrase",
     "query": "what is the maximum amount the client can spend",
     "conversation": "clinic",
-    "expect": "budget 1.5 lakh"
+    "expect": "budget 1.5 lakh",
+    "split": "dev"
   },
   {
     "kind": "en_paraphrase",
     "query": "how long do we have to finish the project",
     "conversation": "clinic",
-    "expect": "Timeline 8 weeks"
+    "expect": "Timeline 8 weeks",
+    "split": "dev"
   },
   {
     "kind": "en_paraphrase",
     "query": "what happens to the money if a patient cancels",
     "conversation": "clinic",
-    "expect": "refund ka kya rule"
+    "expect": "refund ka kya rule",
+    "split": "dev"
   },
   {
     "kind": "en_direct",
     "query": "which payment gateway must be used",
     "conversation": "bakery",
-    "expect": "Razorpay"
+    "expect": "Razorpay",
+    "split": "dev"
   },
   {
     "kind": "en_paraphrase",
     "query": "can customers get their cakes brought to their home",
     "conversation": "bakery",
-    "expect": "Delivery is not needed"
+    "expect": "Delivery is not needed",
+    "split": "dev"
   },
   {
     "kind": "en_paraphrase",
     "query": "what is the hard cut-off date for launch",
     "conversation": "bakery",
-    "expect": "20 October"
+    "expect": "20 October",
+    "split": "dev"
   },
   {
     "kind": "en_paraphrase",
     "query": "how will employees mark an order finished",
     "conversation": "bakery",
-    "expect": "admin panel"
+    "expect": "admin panel",
+    "split": "dev"
   },
   {
     "kind": "en_paraphrase",
     "query": "who might create the brand mark",
     "conversation": "bakery",
-    "expect": "nephew might design the logo"
+    "expect": "nephew might design the logo",
+    "split": "dev"
   },
   {
     "kind": "en_direct",
     "query": "tally accounting stock sync",
     "conversation": "bakery",
-    "expect": "Tally"
+    "expect": "Tally",
+    "split": "dev"
   },
   {
     "kind": "hinglish_direct",
     "query": "gym mein ek batch me kitne log",
     "conversation": "gym",
-    "expect": "maximum 20 log"
+    "expect": "maximum 20 log",
+    "split": "dev"
   },
   {
     "kind": "hinglish_direct",
     "query": "trainer attendance kaise hogi",
     "conversation": "gym",
-    "expect": "QR code"
+    "expect": "QR code",
+    "split": "dev"
   },
   {
     "kind": "en_paraphrase",
     "query": "which languages should the app support",
     "conversation": "gym",
-    "expect": "हिंदी और अंग्रेज़ी"
+    "expect": "हिंदी और अंग्रेज़ी",
+    "split": "dev"
   },
   {
     "kind": "hinglish_direct",
     "query": "notification WhatsApp ya push",
     "conversation": "gym",
-    "expect": "push notification hi rakho"
+    "expect": "push notification hi rakho",
+    "split": "dev"
   },
   {
     "kind": "hinglish_direct",
     "query": "membership freeze ka kya hua",
     "conversation": "gym",
-    "expect": "partner se puchna"
+    "expect": "partner se puchna",
+    "split": "dev"
   },
   {
     "kind": "en_paraphrase",
     "query": "is facial recognition decided",
     "conversation": "gym",
-    "expect": "Face recognition"
+    "expect": "Face recognition",
+    "split": "dev"
   },
   {
     "kind": "en_paraphrase",
     "query": "what is the spending ceiling for the gym app",
     "conversation": "gym",
-    "expect": "Budget 2 lakh"
+    "expect": "Budget 2 lakh",
+    "split": "dev"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "how will travellers settle the bill",
+    "conversation": "travel",
+    "expect": "Cashfree",
+    "split": "heldout"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "can business customers have their own company logins",
+    "conversation": "travel",
+    "expect": "corporate accounts",
+    "split": "heldout"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "which date must the site go live by",
+    "conversation": "travel",
+    "expect": "30 November",
+    "split": "heldout"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "what is the ceiling on the project spend for the tour company",
+    "conversation": "travel",
+    "expect": "3.5 lakh",
+    "split": "heldout"
+  },
+  {
+    "kind": "hinglish_direct",
+    "query": "80G receipt kaise milegi donors ko",
+    "conversation": "ngo",
+    "expect": "80G receipt",
+    "split": "heldout"
+  },
+  {
+    "kind": "hinglish_direct",
+    "query": "newsletter kis tool se jayega",
+    "conversation": "ngo",
+    "expect": "Brevo use karo",
+    "split": "heldout"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "which languages must the charity site support",
+    "conversation": "ngo",
+    "expect": "हिंदी और अंग्रेज़ी",
+    "split": "heldout"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "how can donors pay",
+    "conversation": "ngo",
+    "expect": "Razorpay aur UPI QR",
+    "split": "heldout"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "which phones will the drivers use",
+    "conversation": "logistics",
+    "expect": "Android only",
+    "split": "heldout"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "how long must journey records be kept",
+    "conversation": "logistics",
+    "expect": "exactly 2 years",
+    "split": "heldout"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "who sends text messages to customers",
+    "conversation": "logistics",
+    "expect": "Twilio",
+    "split": "heldout"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "which tool handles invoicing",
+    "conversation": "logistics",
+    "expect": "Tally",
+    "split": "heldout"
+  },
+  {
+    "kind": "en_direct",
+    "query": "how many vehicles will be tracked",
+    "conversation": "logistics",
+    "expect": "number of vehicles",
+    "split": "heldout"
+  },
+  {
+    "kind": "hinglish_direct",
+    "query": "Gandhi Jayanti campaign ke liye launch kab tak",
+    "conversation": "ngo",
+    "expect": "2 October",
+    "split": "heldout"
+  },
+  {
+    "kind": "en_paraphrase",
+    "query": "what did the founder decide about PDF invoices",
+    "conversation": "travel",
+    "expect": "email receipts only",
+    "split": "heldout"
   }
 ]

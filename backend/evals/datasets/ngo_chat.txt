@@ -1,0 +1,14 @@
+03/09/2026, 16:00 - Messages and calls are end-to-end encrypted. No one outside of this chat can read them.
+03/09/2026, 16:01 - Kavita (Asha Trust): Namaste Imran, hamare trust ke liye donation website chahiye
+03/09/2026, 16:03 - Kavita (Asha Trust): Donors ko 80G receipt automatically PDF mein email hona chahiye
+03/09/2026, 16:05 - Imran: Payment kaise lenge?
+03/09/2026, 16:06 - Kavita (Asha Trust): Razorpay aur UPI QR dono, kuch aur nahi
+03/09/2026, 16:08 - Kavita (Asha Trust): Website हिंदी और अंग्रेज़ी दोनों में होनी चाहिए
+03/09/2026, 16:10 - Kavita (Asha Trust): Monthly recurring donation shayad baad mein add karenge, abhi pakka nahi
+03/09/2026, 16:12 - Kavita (Asha Trust): Newsletter Mailchimp se bhejenge
+03/09/2026, 16:14 - Kavita (Asha Trust): Nahi nahi, Mailchimp mehnga hai, Brevo use karo
+03/09/2026, 16:16 - Imran: Volunteer signup form bhi chahiye kya?
+03/09/2026, 16:17 - Kavita (Asha Trust): Pata nahi, trustees se puchna padega
+03/09/2026, 16:19 - Kavita (Asha Trust): Chai pee ke aati hoon, 5 min
+03/09/2026, 16:25 - Kavita (Asha Trust): Launch 2 October se pehle, Gandhi Jayanti pe campaign hai
+03/09/2026, 16:26 - Kavita (Asha Trust): Budget 1 lakh se zyada nahi

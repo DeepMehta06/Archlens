@@ -73,6 +73,9 @@
             ],
             [
               "1.5"
+            ],
+            [
+              "one and a half lakh"
             ]
           ],
           "hedged": false
@@ -354,6 +357,9 @@
             ],
             [
               "200000"
+            ],
+            [
+              "two lakh"
             ]
           ],
           "hedged": false
@@ -415,7 +421,7 @@
       "file": "salon_chat.txt",
       "me": "Nikhil",
       "language": "hinglish",
-      "heldout": true,
+      "heldout": false,
       "facts": [
         {
           "id": "service_stylist_booking",
@@ -586,14 +592,15 @@
             ]
           ]
         }
-      ]
+      ],
+      "split_note": "tuned against during eval round 2"
     },
     {
       "id": "school",
       "file": "school_notes.txt",
       "me": "Divya",
       "language": "english",
-      "heldout": true,
+      "heldout": false,
       "facts": [
         {
           "id": "parent_portal_attendance_fees",
@@ -723,6 +730,500 @@
             ],
             [
               "replace"
+            ]
+          ]
+        }
+      ],
+      "split_note": "tuned against during eval round 2"
+    },
+    {
+      "id": "travel",
+      "file": "travel_thread.txt",
+      "me": "Rohan",
+      "language": "english",
+      "heldout": true,
+      "facts": [
+        {
+          "id": "hotel_flight_booking",
+          "match": [
+            [
+              "hotel"
+            ],
+            [
+              "flight"
+            ],
+            [
+              "package"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "cashfree_only",
+          "match": [
+            [
+              "cashfree"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "corporate_accounts",
+          "match": [
+            [
+              "corporate"
+            ]
+          ],
+          "hedged": true
+        },
+        {
+          "id": "email_receipts_only",
+          "match": [
+            [
+              "receipt"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "launch_30_nov",
+          "match": [
+            [
+              "30 november"
+            ],
+            [
+              "november"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "budget_3_5_lakh",
+          "match": [
+            [
+              "3.5 lakh"
+            ],
+            [
+              "350000"
+            ],
+            [
+              "3,50,000"
+            ],
+            [
+              "3.5"
+            ]
+          ],
+          "hedged": false
+        }
+      ],
+      "gap_questions": [
+        {
+          "id": "refund_window",
+          "match": [
+            [
+              "refund"
+            ],
+            [
+              "cancel"
+            ]
+          ]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "munnar_small_talk",
+          "match": [
+            [
+              "munnar"
+            ],
+            [
+              "monsoon"
+            ],
+            [
+              "resort"
+            ]
+          ],
+          "scope": "title"
+        },
+        {
+          "id": "support_chat_out_of_scope",
+          "match": [
+            [
+              "support"
+            ],
+            [
+              "chat"
+            ]
+          ],
+          "scope": "title",
+          "unless": [
+            [
+              "not "
+            ],
+            [
+              "no "
+            ],
+            [
+              "out of scope"
+            ],
+            [
+              "excluded"
+            ]
+          ]
+        },
+        {
+          "id": "superseded_pdf_invoices",
+          "match": [
+            [
+              "pdf"
+            ]
+          ],
+          "scope": "title",
+          "unless": [
+            [
+              "no "
+            ],
+            [
+              "not "
+            ],
+            [
+              "without"
+            ],
+            [
+              "instead"
+            ],
+            [
+              "only"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ngo",
+      "file": "ngo_chat.txt",
+      "me": "Imran",
+      "language": "hinglish_devanagari",
+      "heldout": true,
+      "facts": [
+        {
+          "id": "donation_website",
+          "match": [
+            [
+              "donation"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "80g_receipt_pdf",
+          "match": [
+            [
+              "80g"
+            ],
+            [
+              "receipt"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "razorpay_upi_qr",
+          "match": [
+            [
+              "razorpay"
+            ],
+            [
+              "upi"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "hindi_english",
+          "match": [
+            [
+              "hindi"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "recurring_donations",
+          "match": [
+            [
+              "recurring"
+            ],
+            [
+              "monthly"
+            ]
+          ],
+          "hedged": true
+        },
+        {
+          "id": "brevo_newsletter",
+          "match": [
+            [
+              "brevo"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "launch_2_october",
+          "match": [
+            [
+              "2 october"
+            ],
+            [
+              "october"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "budget_1_lakh",
+          "match": [
+            [
+              "1 lakh"
+            ],
+            [
+              "100000"
+            ],
+            [
+              "1,00,000"
+            ],
+            [
+              "one lakh"
+            ]
+          ],
+          "hedged": false
+        }
+      ],
+      "gap_questions": [
+        {
+          "id": "volunteer_signup",
+          "match": [
+            [
+              "volunteer"
+            ]
+          ]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "superseded_mailchimp",
+          "match": [
+            [
+              "mailchimp"
+            ]
+          ],
+          "scope": "title",
+          "unless": [
+            [
+              "not "
+            ],
+            [
+              "no "
+            ],
+            [
+              "instead"
+            ],
+            [
+              "brevo"
+            ],
+            [
+              "replace"
+            ]
+          ]
+        },
+        {
+          "id": "chai_small_talk",
+          "match": [
+            [
+              "chai"
+            ],
+            [
+              "tea"
+            ]
+          ],
+          "scope": "title"
+        }
+      ]
+    },
+    {
+      "id": "logistics",
+      "file": "logistics_notes.txt",
+      "me": "Sneha",
+      "language": "english",
+      "heldout": true,
+      "facts": [
+        {
+          "id": "live_gps_map",
+          "match": [
+            [
+              "gps"
+            ],
+            [
+              "map"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "android_only_driver_app",
+          "match": [
+            [
+              "android"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "sms_via_twilio",
+          "match": [
+            [
+              "twilio"
+            ],
+            [
+              "sms"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "fuel_cost_reports",
+          "match": [
+            [
+              "fuel"
+            ]
+          ],
+          "hedged": true
+        },
+        {
+          "id": "two_year_retention",
+          "match": [
+            [
+              "2 year"
+            ],
+            [
+              "two year"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "email_password_login",
+          "match": [
+            [
+              "email"
+            ],
+            [
+              "password"
+            ]
+          ],
+          "hedged": false
+        },
+        {
+          "id": "deadline_end_q2",
+          "match": [
+            [
+              "q2"
+            ],
+            [
+              "quarter"
+            ]
+          ],
+          "hedged": false
+        }
+      ],
+      "gap_questions": [
+        {
+          "id": "vehicle_count",
+          "match": [
+            [
+              "vehicle"
+            ],
+            [
+              "fleet size"
+            ],
+            [
+              "number of"
+            ]
+          ]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "billing_out_of_scope",
+          "match": [
+            [
+              "billing"
+            ],
+            [
+              "invoic"
+            ]
+          ],
+          "scope": "title",
+          "unless": [
+            [
+              "not "
+            ],
+            [
+              "no "
+            ],
+            [
+              "out of scope"
+            ],
+            [
+              "excluded"
+            ],
+            [
+              "tally"
+            ],
+            [
+              "outside"
+            ]
+          ]
+        },
+        {
+          "id": "cricket_small_talk",
+          "match": [
+            [
+              "cricket"
+            ],
+            [
+              "tournament"
+            ],
+            [
+              "daughter"
+            ]
+          ],
+          "scope": "title"
+        },
+        {
+          "id": "superseded_google_login",
+          "match": [
+            [
+              "google"
+            ]
+          ],
+          "scope": "title",
+          "unless": [
+            [
+              "not "
+            ],
+            [
+              "no "
+            ],
+            [
+              "instead"
+            ],
+            [
+              "email"
+            ],
+            [
+              "without"
             ]
           ]
         }

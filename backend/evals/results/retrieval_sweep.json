@@ -1,0 +1,256 @@
+{
+  "generated_at": "2026-10-11T08:04:00+00:00",
+  "model": "gemma4:e4b",
+  "embed_model": "embeddinggemma",
+  "ollama_health": {
+    "reachable": true,
+    "model_installed": true,
+    "embed_model_installed": true
+  },
+  "repeat": 2,
+  "retrieval": {
+    "chunks_indexed": 30,
+    "chunk_chars": 300,
+    "fusion_sweep": {
+      "dense_weight_1.0": {
+        "dev": {
+          "recall@1": 0.65,
+          "recall@3": 0.75,
+          "mrr": 0.727,
+          "n": 20
+        },
+        "heldout": {
+          "recall@1": 0.733,
+          "recall@3": 0.933,
+          "mrr": 0.85,
+          "n": 15
+        }
+      },
+      "dense_weight_1.5": {
+        "dev": {
+          "recall@1": 0.65,
+          "recall@3": 0.75,
+          "mrr": 0.731,
+          "n": 20
+        },
+        "heldout": {
+          "recall@1": 0.867,
+          "recall@3": 0.933,
+          "mrr": 0.917,
+          "n": 15
+        }
+      },
+      "dense_weight_2.0": {
+        "dev": {
+          "recall@1": 0.65,
+          "recall@3": 0.75,
+          "mrr": 0.731,
+          "n": 20
+        },
+        "heldout": {
+          "recall@1": 0.867,
+          "recall@3": 0.933,
+          "mrr": 0.917,
+          "n": 15
+        }
+      },
+      "dense_weight_3.0": {
+        "dev": {
+          "recall@1": 0.65,
+          "recall@3": 0.75,
+          "mrr": 0.731,
+          "n": 20
+        },
+        "heldout": {
+          "recall@1": 0.867,
+          "recall@3": 0.933,
+          "mrr": 0.917,
+          "n": 15
+        }
+      }
+    },
+    "overall": {
+      "bm25": {
+        "recall@1": 0.543,
+        "recall@3": 0.657,
+        "mrr": 0.605,
+        "n": 35
+      },
+      "dense": {
+        "recall@1": 0.771,
+        "recall@3": 0.886,
+        "mrr": 0.842,
+        "n": 35
+      },
+      "hybrid": {
+        "recall@1": 0.686,
+        "recall@3": 0.829,
+        "mrr": 0.78,
+        "n": 35
+      }
+    },
+    "by_split": {
+      "dev": {
+        "bm25": {
+          "recall@1": 0.6,
+          "recall@3": 0.65,
+          "mrr": 0.625,
+          "n": 20
+        },
+        "dense": {
+          "recall@1": 0.7,
+          "recall@3": 0.8,
+          "mrr": 0.774,
+          "n": 20
+        },
+        "hybrid": {
+          "recall@1": 0.65,
+          "recall@3": 0.75,
+          "mrr": 0.727,
+          "n": 20
+        }
+      },
+      "heldout": {
+        "bm25": {
+          "recall@1": 0.467,
+          "recall@3": 0.667,
+          "mrr": 0.578,
+          "n": 15
+        },
+        "dense": {
+          "recall@1": 0.867,
+          "recall@3": 1.0,
+          "mrr": 0.933,
+          "n": 15
+        },
+        "hybrid": {
+          "recall@1": 0.733,
+          "recall@3": 0.933,
+          "mrr": 0.85,
+          "n": 15
+        }
+      }
+    },
+    "by_query_kind": {
+      "en_direct": {
+        "bm25": {
+          "recall@1": 0.75,
+          "recall@3": 1.0,
+          "mrr": 0.875,
+          "n": 4
+        },
+        "dense": {
+          "recall@1": 0.75,
+          "recall@3": 0.75,
+          "mrr": 0.812,
+          "n": 4
+        },
+        "hybrid": {
+          "recall@1": 0.75,
+          "recall@3": 1.0,
+          "mrr": 0.833,
+          "n": 4
+        }
+      },
+      "hinglish_direct": {
+        "bm25": {
+          "recall@1": 1.0,
+          "recall@3": 1.0,
+          "mrr": 1.0,
+          "n": 9
+        },
+        "dense": {
+          "recall@1": 1.0,
+          "recall@3": 1.0,
+          "mrr": 1.0,
+          "n": 9
+        },
+        "hybrid": {
+          "recall@1": 1.0,
+          "recall@3": 1.0,
+          "mrr": 1.0,
+          "n": 9
+        }
+      },
+      "en_paraphrase": {
+        "bm25": {
+          "recall@1": 0.318,
+          "recall@3": 0.455,
+          "mrr": 0.394,
+          "n": 22
+        },
+        "dense": {
+          "recall@1": 0.682,
+          "recall@3": 0.864,
+          "mrr": 0.783,
+          "n": 22
+        },
+        "hybrid": {
+          "recall@1": 0.545,
+          "recall@3": 0.727,
+          "mrr": 0.68,
+          "n": 22
+        }
+      }
+    },
+    "misses": [
+      {
+        "query": "what is the maximum amount the client can spend",
+        "kind": "en_paraphrase",
+        "expect": "budget 1.5 lakh",
+        "hybrid": null,
+        "bm25": null,
+        "dense": null,
+        "relevant_found": false
+      },
+      {
+        "query": "how long do we have to finish the project",
+        "kind": "en_paraphrase",
+        "expect": "Timeline 8 weeks",
+        "hybrid": 6,
+        "bm25": null,
+        "dense": 5,
+        "relevant_found": true
+      },
+      {
+        "query": "can customers get their cakes brought to their home",
+        "kind": "en_paraphrase",
+        "expect": "Delivery is not needed",
+        "hybrid": 6,
+        "bm25": null,
+        "dense": 2,
+        "relevant_found": true
+      },
+      {
+        "query": "which languages should the app support",
+        "kind": "en_paraphrase",
+        "expect": "हिंदी और अंग्रेज़ी",
+        "hybrid": 4,
+        "bm25": null,
+        "dense": 1,
+        "relevant_found": true
+      },
+      {
+        "query": "what is the spending ceiling for the gym app",
+        "kind": "en_paraphrase",
+        "expect": "Budget 2 lakh",
+        "hybrid": 8,
+        "bm25": null,
+        "dense": 5,
+        "relevant_found": true
+      },
+      {
+        "query": "which languages must the charity site support",
+        "kind": "en_paraphrase",
+        "expect": "हिंदी और अंग्रेज़ी",
+        "hybrid": 4,
+        "bm25": null,
+        "dense": 1,
+        "relevant_found": true
+      }
+    ]
+  },
+  "suite_seconds": {
+    "retrieval": 54.1
+  }
+}

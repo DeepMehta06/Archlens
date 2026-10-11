@@ -17,7 +17,7 @@ Technical documentation for backend v0.2. For the API contract aimed at UI work 
 | Storage | SQLite (WAL, `foreign_keys=ON`, `busy_timeout`), async SQLAlchemy 2 with aiosqlite |
 | Lexical search | SQLite FTS5 (BM25), Devanagari combining marks added via `tokenchars` |
 | Dense search | EmbeddingGemma through Ollama `/api/embed`, vectors stored as JSON, NumPy brute-force cosine (adequate at project scale; no ANN index) |
-| Fusion | Reciprocal Rank Fusion, `k = 60`, ranks only (scores from the two systems are not comparable) |
+| Fusion | Reciprocal Rank Fusion, `k = 60`, ranks only (scores from the two systems are not comparable), dense channel weight `RRF_DENSE_WEIGHT=2.0` |
 | LLM | `gemma4:e4b` through Ollama `/api/chat` with JSON-schema `format`, `think:false`, explicit `num_ctx` and `num_predict` |
 | Logging | structlog; private message content is not logged unless `LOG_SENSITIVE_CONTENT=true` |
 
@@ -39,7 +39,7 @@ backend/
     prompts/*.txt      model prompts: extraction, router, answer, change_detection, draft_message, diagram_spec
     demo/              labelled demo chat and an example incoming request
   scripts/check_setup.py   preflight: FTS5, Ollama, models, schema-constrained smoke test, tokens/s
-  tests/                   83 tests, model faked
+  tests/                   90 tests, model faked
   evals/                   live evaluation harness (see EVALUATION.md)
 ```
 
@@ -50,7 +50,8 @@ backend/
 | `ollama_client.py` | `chat`, `chat_json` (schema validation plus one repair retry), `stream_chat`, `embed`, `health`. Typed errors: unavailable, model missing, timeout, bad response. Hitting `num_predict` is an explicit error, not a truncated answer. |
 | `whatsapp_parser.py` | Detects WhatsApp exports (several date formats, ambiguity flagged), extracts senders, timestamps, multi-line messages, system lines. |
 | `chunking.py` | Turns messages (or sentences of plain text) into numbered **units** and groups them into chunks of about `CHUNK_TARGET_CHARS`. Units carry sender and time. |
-| `source_ingestion.py` | Creates sources, stores chunks, indexes them (FTS5 plus embeddings), runs extraction batches, updates the job with real stages. |
+| `source_ingestion.py` | Creates sources, stores chunks, indexes them (FTS5 plus embeddings), runs extraction batches, updates the job with real stages (`reading`, `transcribing` for media, `indexing`, `extracting n/m`). |
+| `media_ingestion.py` | PDF, image and audio to text (section 5a). |
 | `extraction.py` | Builds the prompt, validates model output, persists items, evidence and questions. |
 | `evidence_verification.py` | Rebuilds quotes from stored units and checks free-text phrases with whitespace-normalised exact matching. |
 | `hedging.py` | English, Hinglish and Devanagari hedge lexicon. A hedged statement cannot remain `explicit`. |
@@ -119,10 +120,22 @@ Provenance rules enforced in code (`extraction.py`, `evidence_verification.py`):
 3. If the cited text contains a hedge, `evidence_status` is lowered from `explicit` to `tentative` and `verification_note` says why.
 4. `stated_by` comes from speaker roles (the "you" sender is chosen per source). If any cited unit is by the client, the evidence speaker is the client.
 5. New items are always `needs_review`.
-6. Duplicates (same type, token Jaccard of at least 0.75) merge and add evidence instead of creating a second item.
+6. Any newly created `tentative` item that no model question refers to gets a templated confirmation question (`questions_from_hedges` in the job result), so uncertainty always yields something the user can send to the client.
+7. Duplicates (same type, token Jaccard of at least 0.75) merge and add evidence instead of creating a second item.
 7. The prompt tells the model that source text is data and that embedded instructions are to be ignored. This reduces prompt-injection risk but is not a security guarantee.
 
 Batch failures are tolerated: if some batches return invalid JSON the job still completes and reports `failed_batches`; if all fail the job fails.
+
+### 5a. File import: PDF, image, audio
+
+`POST /sources/upload` accepts `.txt`/`.md` plus `.pdf`, `.png`, `.jpg`/`.jpeg`, `.webp` and `.wav`. Media files are saved under `ARCHLENS_DATA_DIR/uploads` and transcribed inside the ingestion job (stage `transcribing`); the transcript then goes through the normal chunk, index and extract path.
+
+- **Image**: `gemma4:e4b` vision transcribes visible text line by line (chat screenshots as `Sender: message`); with no text it returns a short factual description.
+- **Audio**: sent to Ollama in the message `images` field (the `audio` field is silently ignored). WAV is split into 25-second segments, each transcribed and joined, because the model accepts only short clips. Maximum 10 minutes. Other audio formats are not accepted because they were not verified.
+- **PDF**: text layer through `pypdf` (at most 30 pages); a page with almost no text is rendered with `pypdfium2` and read by vision (at most 10 such pages). Encrypted PDFs are rejected.
+- **Provenance**: evidence from image and audio is stored as `transcript_quote` with the note "Quote is from a model transcript of the uploaded file, not the file itself." `verified` therefore means the quote matches the transcript, not the original media. PDF text-layer evidence stays `text_quote`.
+- Nothing readable (or `[no speech]`) fails the job with "No readable text or speech was found in the file."
+- With `analyze=false` a media file is stored but not transcribed until it is analysed.
 
 ## 6. Retrieval
 
@@ -135,6 +148,7 @@ flowchart LR
   F --> R["top_k hits with bm25_rank and dense_rank"]
 ```
 
+- Function words (English and Hinglish) are dropped from the BM25 query unless that would empty it. The dense channel is weighted 2x in fusion because paraphrased queries are where lexical match is weakest (measured in EVALUATION.md).
 - Always filtered by `project_id`. Queries are sanitised into quoted FTS tokens (at most 24), so user input cannot inject FTS syntax.
 - EmbeddingGemma prompts follow Google's published retrieval templates: queries `task: search result | query: `, documents `title: none | text: `. Ollama's template for the model is raw, so the app adds the prefixes. Both are configurable.
 - Vectors are L2-normalised. Brute-force cosine is exact and fast at this scale; it would need an index only for very large projects.
@@ -189,7 +203,7 @@ See the table in the README. Notable: `OLLAMA_THINK=false` is required in practi
 cd backend
 python -m scripts.check_setup          # preflight with a schema-constrained smoke test
 uvicorn app.main:app --port 8000       # docs at /docs
-pytest                                 # 83 tests, no Ollama needed
+pytest                                 # 90 tests, no Ollama needed
 python -m evals.run_evals              # live evaluation, needs Ollama with both models
 ```
 
@@ -210,7 +224,7 @@ The unit and API tests use `FakeLLM` and `FakeEmbedder`, so they prove the logic
 
 ## 13. Known limitations
 
-- Only text and WhatsApp text are ingested. Images, audio and PDF are not implemented (Gemma 4 supports image and audio input through Ollama; audio must be sent in the `images` field).
+- Media import is verified only with generated files (clean rendered text, synthesized English speech). Real photos, noisy audio, Hinglish speech, handwriting and long recordings are untested; audio is WAV only.
 - Extraction can miss items and the router is not guaranteed; see EVALUATION.md for the measured rates and the small size of the test sets.
 - Duplicate detection is lexical, so paraphrased duplicates may remain separate.
 - Hinglish drafts can mix English.

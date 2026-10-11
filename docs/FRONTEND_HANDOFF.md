@@ -29,9 +29,9 @@ Layout decided with the user: chat-first. Chat in the centre, workspace panel on
 - risk_level: `low | medium | high`
 - stated_by / speaker_role: `client | you | unknown`
 - verification_status: `verified | unverified | not_applicable`
-- evidence_kind: `text_quote | transcript_quote | visual_observation` (only `text_quote` is produced today)
+- evidence_kind: `text_quote | transcript_quote | visual_observation`. `transcript_quote` comes from image and audio uploads: label it "from transcript" and show `verification_note`. `visual_observation` is not produced.
 - question priority: `low | medium | high`; status: `open | resolved | dismissed`
-- source status: `uploaded | processing | processed | failed`; source_type: `text | whatsapp | image | audio | pdf` (only text and whatsapp are produced today)
+- source status: `uploaded | processing | processed | failed`; source_type: `text | whatsapp | image | audio | pdf` (all are produced now; media files are kept on the server but there is no download endpoint yet)
 - job status: `queued | processing | completed | failed`
 - change classification: `already_covered | new_requirement | contradiction | unclear`
 - diagram_type: `architecture | sequence | er | component | requirements`
@@ -46,7 +46,7 @@ Layout decided with the user: chat-first. Chat in the centre, workspace panel on
 | PATCH / DELETE | `/projects/{id}` | delete is 204, removes data and search index |
 | GET | `/projects/{id}/sources` | |
 | POST | `/projects/{id}/sources` | `{text, label?, me?, analyze=true}` returns `{source, job}` |
-| POST | `/projects/{id}/sources/upload` | multipart `.txt`/`.md` (WhatsApp exports), returns `{source, job}` |
+| POST | `/projects/{id}/sources/upload` | multipart: `.txt`, `.md`, `.pdf`, `.png`, `.jpg`, `.jpeg`, `.webp`, `.wav`. Returns `{source, job}`. Media jobs have a `transcribing` stage first (image or audio can take several seconds). Unsupported types return 415 with the list. |
 | GET | `/projects/{id}/sources/{sid}` | source with chunks (`units_json` = numbered messages with sender and time) |
 | PATCH | `/projects/{id}/sources/{sid}` | `{me}`: which sender is "you" (needed when WhatsApp sender detection is ambiguous) |
 | GET | `/jobs/{id}` | `{status, stage, progress 0-100, error_message, result_json}`. Poll about every 1 s while `queued/processing`. Real stages, not fake. Demo import takes about 28 s. |
@@ -113,7 +113,7 @@ Latency observed (one machine, RTX 4060 8 GB, single runs): chat turn about 2 s,
 
 ## Known limitations (do not design around features that do not exist)
 
-- No image, audio or PDF import yet (planned).
+- Media import is verified only on generated files; show the transcript so the user can check it. Audio is WAV only; no endpoint to download originals.
 - No auth, single local user.
 - Extraction can miss items (the refund policy became a question, not an item, in the demo run). Duplicate detection is title similarity only.
 - `embeddinggemma` is installed and `/health` reports `retrieval_mode: "hybrid"`. Only ad hoc live checks so far; no retrieval quality numbers.
