@@ -1,0 +1,57 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /MediaBox [0 0 612 792] /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Length 1578 >>
+stream
+BT /F2 18 Tf 50 760 Td (Clinic Management App Requirements) Tj ET
+BT /F1 11 Tf 50 732 Td (Mehta Clinic -- Project Brief, Version 1.0, 12 May 2024) Tj ET
+BT /F2 13 Tf 50 710 Td (1. Overview) Tj ET
+BT /F1 11 Tf 50 690 Td (This document outlines the requirements for the clinic management mobile) Tj ET
+BT /F1 11 Tf 50 674 Td (and web application. The goal is to simplify patient appointment booking,) Tj ET
+BT /F1 11 Tf 50 658 Td (clinic operations and payments.) Tj ET
+BT /F2 13 Tf 50 636 Td (2. Key Features) Tj ET
+BT /F1 11 Tf 60 616 Td (- Online appointment booking for patients) Tj ET
+BT /F1 11 Tf 60 600 Td (- Doctor and staff management) Tj ET
+BT /F1 11 Tf 60 584 Td (- WhatsApp and email reminders) Tj ET
+BT /F1 11 Tf 60 568 Td (- UPI and card payments) Tj ET
+BT /F1 11 Tf 60 552 Td (- Patient records and prescription management) Tj ET
+BT /F1 11 Tf 60 536 Td (- Admin dashboard with daily, weekly and monthly reports) Tj ET
+BT /F1 11 Tf 60 520 Td (- Support for multiple doctors and clinic locations) Tj ET
+BT /F2 13 Tf 50 498 Td (3. Timeline) Tj ET
+BT /F1 11 Tf 50 478 Td (Target launch: Initial version in 1 month.) Tj ET
+BT /F1 11 Tf 50 462 Td (Prescription management can be added in a later phase.) Tj ET
+BT /F2 13 Tf 50 440 Td (4. Notes) Tj ET
+BT /F1 11 Tf 60 420 Td (- App should be simple and easy to use for non-technical staff.) Tj ET
+BT /F1 11 Tf 60 404 Td (- Must work well on mobile devices.) Tj ET
+BT /F1 11 Tf 60 388 Td (- Keep the design clean and professional.) Tj ET
+BT /F1 11 Tf 60 372 Td (- Client will share more feedback after the first demo.) Tj ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000251 00000 n 
+0000000321 00000 n 
+0000000396 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+2026
+%%EOF

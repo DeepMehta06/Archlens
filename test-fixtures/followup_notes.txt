@@ -1,0 +1,12 @@
+Client Follow-up Notes
+======================
+
+- Client ka main focus abhi appointment booking, reminders and payment hai.
+- Prescription feature important hai but later phase me karenge.
+- Admin dashboard me daily, weekly reports chahiye.
+- Staff ko patient history easily dekhna hona chahiye.
+- Design simple aur clean rakhna hai.
+- Agar possible ho to dark mode bhi achha rahega.
+- Client ko regular updates chahiye, preferably haftein 2 baar demo.
+- Budget roughly 2-3 lakh ke around hai.
+- Timeline: pehla version 1 month.

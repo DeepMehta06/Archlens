@@ -1,0 +1,8 @@
+12/05/2024, 10:14 - Dr. Mehta (Clinic): Hi, we need a simple app for our clinic.
+12/05/2024, 10:15 - Riya: Patients should be able to book appointments online. Kya yeh possible hai next month tak?
+12/05/2024, 10:16 - Dr. Mehta (Clinic): Yes, also we want WhatsApp reminders for appointments so patients don't forget.
+12/05/2024, 10:17 - Riya: Payment bhi add karna hai. UPI and card dono chahiye.
+12/05/2024, 10:18 - Dr. Mehta (Clinic): Reception wala staff should be able to manage appointments and see patient details.
+12/05/2024, 10:20 - Riya: Ek dashboard bhi chahiye jisme daily appointments ka view ho. Agar possible ho to reports bhi.
+12/05/2024, 10:22 - Dr. Mehta (Clinic): Looks good. Can you also add option for prescriptions? Maybe later phase.
+12/05/2024, 10:23 - Riya: Ok, I'll share a rough design.

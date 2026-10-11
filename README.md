@@ -1,3 +1,5 @@
+ 
+
 # ArchLens
 
 **Every scope decision has a receipt.**
@@ -112,43 +114,43 @@ curl -X POST http://127.0.0.1:8000/api/demo/seed
 
 ### Configuration (`backend/.env`)
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Local Ollama endpoint |
-| `OLLAMA_MODEL` | `gemma4:e4b` | Chat, extraction and diagram model |
-| `OLLAMA_EMBED_MODEL` | `embeddinggemma` | Dense embeddings (optional) |
-| `OLLAMA_NUM_CTX` / `OLLAMA_NUM_PREDICT` | `16384` / `4096` | Context window and output limit; hitting the limit is an explicit error |
-| `OLLAMA_THINK` | `false` | Gemma 4 is a thinking model; with thinking on it can spend the whole budget before emitting JSON |
-| `OLLAMA_TIMEOUT_SECONDS` | `600` | Per-request timeout |
-| `ARCHLENS_DATA_DIR` | `./data` | SQLite database and uploads |
-| `MAX_UPLOAD_BYTES` | `20971520` | Upload size limit |
+| Variable                                    | Default                    | Purpose                                                                                          |
+| ------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------ |
+| `OLLAMA_BASE_URL`                         | `http://127.0.0.1:11434` | Local Ollama endpoint                                                                            |
+| `OLLAMA_MODEL`                            | `gemma4:e4b`             | Chat, extraction and diagram model                                                               |
+| `OLLAMA_EMBED_MODEL`                      | `embeddinggemma`         | Dense embeddings (optional)                                                                      |
+| `OLLAMA_NUM_CTX` / `OLLAMA_NUM_PREDICT` | `16384` / `4096`       | Context window and output limit; hitting the limit is an explicit error                          |
+| `OLLAMA_THINK`                            | `false`                  | Gemma 4 is a thinking model; with thinking on it can spend the whole budget before emitting JSON |
+| `OLLAMA_TIMEOUT_SECONDS`                  | `600`                    | Per-request timeout                                                                              |
+| `ARCHLENS_DATA_DIR`                       | `./data`                 | SQLite database and uploads                                                                      |
+| `MAX_UPLOAD_BYTES`                        | `20971520`               | Upload size limit                                                                                |
 
 `EMBED_QUERY_PREFIX` and `EMBED_DOCUMENT_PREFIX` hold EmbeddingGemma's task prompts. They match Google's published EmbeddingGemma retrieval templates (`task: search result | query: ` and `title: none | text: `); Ollama's template for this model is raw, so the application adds them.
 
 ## API (prefix `/api`)
 
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/health` | Ollama, models, retrieval mode (`hybrid` or `bm25_only`), privacy statement |
-| POST / GET | `/projects` | Create / list |
-| GET / PATCH / DELETE | `/projects/{id}` | Read / update / delete with its data and search index |
-| GET / POST | `/projects/{id}/sources` | List / add pasted text (JSON) |
-| POST | `/projects/{id}/sources/upload` | `.txt`, `.md`, `.pdf`, `.png`, `.jpg`, `.webp` or `.wav` upload |
-| GET / PATCH | `/projects/{id}/sources/{sid}` | Source with chunks / set which sender is "you" |
-| GET | `/jobs/{id}` | Real stage and progress of ingestion |
-| GET | `/projects/{id}/ledger` | Items, filterable by status and type |
-| GET / PATCH | `/ledger-items/{id}` | Item with evidence and source context / edit, approve, reject |
-| GET | `/projects/{id}/questions` | Open questions |
-| PATCH | `/questions/{id}` | Resolve or dismiss |
-| POST | `/projects/{id}/draft-message` | Editable English or Hinglish client message |
-| POST / GET | `/projects/{id}/snapshots` | Create an immutable baseline from approved items / list |
-| POST | `/projects/{id}/compare` | Classify an incoming request against a snapshot |
-| GET | `/change-reports/{id}` | A stored comparison |
-| POST / GET | `/projects/{id}/diagrams` | Generate a diagram from the ledger / list |
-| GET | `/projects/{id}/export.md` | Markdown scope brief |
-| POST | `/projects/{id}/chat` | Chat turn as a server-sent event stream |
-| GET | `/projects/{id}/chat/messages` | Chat history |
-| POST | `/demo/seed` | Labelled demo project |
+| Method               | Path                              | Purpose                                                                         |
+| -------------------- | --------------------------------- | ------------------------------------------------------------------------------- |
+| GET                  | `/health`                       | Ollama, models, retrieval mode (`hybrid` or `bm25_only`), privacy statement |
+| POST / GET           | `/projects`                     | Create / list                                                                   |
+| GET / PATCH / DELETE | `/projects/{id}`                | Read / update / delete with its data and search index                           |
+| GET / POST           | `/projects/{id}/sources`        | List / add pasted text (JSON)                                                   |
+| POST                 | `/projects/{id}/sources/upload` | `.txt`, `.md`, `.pdf`, `.png`, `.jpg`, `.webp` or `.wav` upload   |
+| GET / PATCH          | `/projects/{id}/sources/{sid}`  | Source with chunks / set which sender is "you"                                  |
+| GET                  | `/jobs/{id}`                    | Real stage and progress of ingestion                                            |
+| GET                  | `/projects/{id}/ledger`         | Items, filterable by status and type                                            |
+| GET / PATCH          | `/ledger-items/{id}`            | Item with evidence and source context / edit, approve, reject                   |
+| GET                  | `/projects/{id}/questions`      | Open questions                                                                  |
+| PATCH                | `/questions/{id}`               | Resolve or dismiss                                                              |
+| POST                 | `/projects/{id}/draft-message`  | Editable English or Hinglish client message                                     |
+| POST / GET           | `/projects/{id}/snapshots`      | Create an immutable baseline from approved items / list                         |
+| POST                 | `/projects/{id}/compare`        | Classify an incoming request against a snapshot                                 |
+| GET                  | `/change-reports/{id}`          | A stored comparison                                                             |
+| POST / GET           | `/projects/{id}/diagrams`       | Generate a diagram from the ledger / list                                       |
+| GET                  | `/projects/{id}/export.md`      | Markdown scope brief                                                            |
+| POST                 | `/projects/{id}/chat`           | Chat turn as a server-sent event stream                                         |
+| GET                  | `/projects/{id}/chat/messages`  | Chat history                                                                    |
+| POST                 | `/demo/seed`                    | Labelled demo project                                                           |
 
 **Chat stream events:** `thread`, `status`, `token`, `replace` (citation markers cleaned), `card` (ledger list, questions, draft message, diagram, change report, confirm-add-source, error), `citations` (with `grounded`), `error`, `done`.
 
@@ -156,14 +158,14 @@ curl -X POST http://127.0.0.1:8000/api/demo/seed
 
 Single runs on one machine (RTX 4060 Laptop 8 GB, Windows 11, Ollama 0.40.2, `gemma4:e4b`, thinking off) with **one synthetic 12-message Hinglish chat**. These are indications, not benchmarks, and extraction quality has not been evaluated beyond reading the output.
 
-| Operation | Observed |
-|---|---|
-| Import demo chat to ledger (7 items, 2 questions, every quote verified, 0 dropped) | 28 s |
-| Chat turn, grounded answer (router + retrieval + streamed answer) | about 1.9 s total |
-| Router call | 0.6 to 1.1 s |
-| Draft client message | about 1 s |
-| Diagram from ledger | about 3 s |
-| Compare a request to a snapshot | about 2 to 3 s |
+| Operation                                                                          | Observed          |
+| ---------------------------------------------------------------------------------- | ----------------- |
+| Import demo chat to ledger (7 items, 2 questions, every quote verified, 0 dropped) | 28 s              |
+| Chat turn, grounded answer (router + retrieval + streamed answer)                  | about 1.9 s total |
+| Router call                                                                        | 0.6 to 1.1 s      |
+| Draft client message                                                               | about 1 s         |
+| Diagram from ledger                                                                | about 3 s         |
+| Compare a request to a snapshot                                                    | about 2 to 3 s    |
 
 The numbers above were measured with BM25-only retrieval. After installing `embeddinggemma` the chat reported `hybrid` mode and returned grounded, cited answers for English and Hinglish questions on the demo chat (four ad hoc queries, one of which returned no output). Retrieval quality has not been measured; no recall figures exist yet.
 
