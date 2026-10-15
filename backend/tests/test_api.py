@@ -7,10 +7,11 @@ import pytest
 
 from app.config import Settings, get_settings
 from app.database import get_db
-from app.deps import get_embedder, get_llm, get_notion_client, get_session_factory_dep
+from app.deps import get_embedder, get_github_client, get_llm, get_notion_client, get_session_factory_dep
 from app.main import app
+from app.services.github_client import CodeFile
 from app.services.notion_export import NotionClient
-from tests.fakes import FakeEmbedder, FakeLLM, FakeNotionClient, UnavailableEmbedder
+from tests.fakes import FakeEmbedder, FakeGitHubClient, FakeLLM, FakeNotionClient, UnavailableEmbedder
 
 DEMO_CHAT = (Path(__file__).resolve().parent.parent / "app" / "demo" / "pune_clinic_chat.txt").read_text(
     encoding="utf-8"
@@ -329,6 +330,38 @@ async def test_upload_accepts_text_and_rejects_other_types_and_oversized_files(e
         f"/api/projects/{project_id}/sources/upload", files={"file": ("big.txt", b"x" * 50, "text/plain")}
     )
     assert big.status_code == 413
+
+
+async def test_github_source_indexes_code_without_running_extraction(env):
+    client, llm, _ = env
+    project_id = await make_project(client)
+    fake_github = FakeGitHubClient(
+        files=[CodeFile(path="app/refund.py", text="def refund_policy():\n    return '7 days'\n")]
+    )
+    app.dependency_overrides[get_github_client] = lambda: fake_github
+
+    created = await client.post(f"/api/projects/{project_id}/sources/github", json={"repo": "octocat/hello-world"})
+    assert created.status_code == 201
+    source = created.json()["source"]
+    assert source["source_type"] == "github_repo" and source["label"] == "octocat/hello-world"
+    job = (await client.get(f"/api/jobs/{created.json()['job']['id']}")).json()
+    assert job["status"] == "completed", job
+    assert job["result_json"]["files"] == 1
+
+    del app.dependency_overrides[get_github_client]
+    assert fake_github.requested == [("octocat", "hello-world", None)]
+    assert (await client.get(f"/api/projects/{project_id}/ledger")).json() == []
+    assert not [c for c in llm.calls if c["model"] == "ExtractionOutput"]
+
+
+async def test_github_source_rejects_an_unparsable_repo(env):
+    client, _, _ = env
+    project_id = await make_project(client)
+
+    bad = await client.post(f"/api/projects/{project_id}/sources/github", json={"repo": "not-a-repo"})
+
+    assert bad.status_code == 502
+    assert "owner/repo" in bad.json()["detail"]
 
 
 async def test_telling_the_app_who_you_are_recomputes_who_stated_each_item(env):

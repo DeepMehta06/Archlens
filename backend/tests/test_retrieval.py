@@ -153,3 +153,22 @@ async def test_hit_carries_source_label_and_location(session):
     assert hit.candidate_type == "chunk"
     assert hit.location["source_label"] == "Clinic chat"
     assert hit.location["ordinal"] == 2
+
+
+async def test_code_chunks_never_leak_into_conversation_search_or_vice_versa(session):
+    project, chat_source, chunks = await seed(session)
+    code_source = Source(
+        project_id=project.id, source_type=SourceType.GITHUB_REPO, label="org/repo", status=SourceStatus.PROCESSED
+    )
+    session.add(code_source)
+    await session.flush()
+    code_chunk = await add_chunk(session, project, code_source, 0, "def refund_policy(): return 'refund logic'")
+    await session.commit()
+    retriever = Retriever(FakeEmbedder())
+
+    conversation_result = await retriever.search_chunks(session, project.id, "refund")
+    code_result = await retriever.search_chunks(session, project.id, "refund", include_code=True)
+
+    assert code_chunk.id not in {h.chunk_id for h in conversation_result.hits}
+    assert chunks["refund"].id not in {h.chunk_id for h in code_result.hits}
+    assert code_result.hits and code_result.hits[0].chunk_id == code_chunk.id

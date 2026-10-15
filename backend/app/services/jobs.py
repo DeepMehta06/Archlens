@@ -3,8 +3,8 @@ from typing import Any, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from app.enums import JobStatus
-from app.models import Job
+from app.enums import JobStatus, SourceStatus
+from app.models import Job, Source
 
 
 async def create_job(
@@ -41,3 +41,15 @@ async def update_job(
         if result is not None:
             job.result_json = result
         await session.commit()
+
+
+async def fail_source_and_job(
+    session_factory: async_sessionmaker[AsyncSession], source_id: str, job_id: str, message: str
+) -> None:
+    async with session_factory() as session:
+        source = await session.get(Source, source_id)
+        if source is not None:
+            source.status = SourceStatus.FAILED
+            source.error_message = message
+            await session.commit()
+    await update_job(session_factory, job_id, status=JobStatus.FAILED, stage="failed", error=message)

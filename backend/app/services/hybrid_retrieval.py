@@ -53,15 +53,19 @@ class Retriever:
         return "hybrid" if await self._embedder.available() else "bm25_only"
 
     async def _dense_ranking(
-        self, session: AsyncSession, project_id: str, query: str, limit: int
+        self, session: AsyncSession, project_id: str, query: str, limit: int, include_code: bool
     ) -> Optional[list[str]]:
         query_vector = await self._embedder.embed_query(query)
         if query_vector is None:
             return None
         rows = (
             await session.execute(
-                select(SourceChunk.id, SourceChunk.embedding_json).where(
-                    SourceChunk.project_id == project_id, SourceChunk.embedding_json.is_not(None)
+                select(SourceChunk.id, SourceChunk.embedding_json)
+                .join(Source, Source.id == SourceChunk.source_id)
+                .where(
+                    SourceChunk.project_id == project_id,
+                    SourceChunk.embedding_json.is_not(None),
+                    (Source.source_type == "github_repo") if include_code else (Source.source_type != "github_repo"),
                 )
             )
         ).all()
@@ -69,15 +73,26 @@ class Retriever:
             return []
         ids = [r[0] for r in rows]
         matrix = np.asarray([r[1] for r in rows], dtype=np.float32)
-        hits = await self._ann.search(project_id, ids, matrix, query_vector, limit)
+        cache_key = f"{project_id}:{'code' if include_code else 'conversation'}"
+        hits = await self._ann.search(cache_key, ids, matrix, query_vector, limit)
         return [chunk_id for chunk_id, _ in hits]
 
     async def search_chunks(
-        self, session: AsyncSession, project_id: str, query: str, top_k: Optional[int] = None
+        self,
+        session: AsyncSession,
+        project_id: str,
+        query: str,
+        top_k: Optional[int] = None,
+        include_code: bool = False,
     ) -> RetrievalResult:
+        """Searches conversation/document chunks by default; ``include_code=True`` searches a
+        connected github_repo source's chunks instead. The two domains are never mixed in one
+        call -- see lexical_search.search_chunks and _dense_ranking."""
         top_k = top_k or self._settings.RETRIEVAL_TOP_K
-        bm25 = [cid for cid, _ in await lexical_search.search_chunks(session, project_id, query, 10)]
-        dense = await self._dense_ranking(session, project_id, query, 10)
+        bm25 = [
+            cid for cid, _ in await lexical_search.search_chunks(session, project_id, query, 10, include_code)
+        ]
+        dense = await self._dense_ranking(session, project_id, query, 10, include_code)
         mode: Literal["hybrid", "bm25_only"] = "bm25_only" if dense is None else "hybrid"
         rankings = {"bm25": bm25}
         if dense is not None:

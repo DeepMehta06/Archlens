@@ -11,7 +11,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from app.api import changes, chat, demo, diagrams, exports, health, ledger, projects, questions, sources
 from app.config import get_settings
 from app.database import get_engine, init_db
-from app.deps import get_llm
+from app.deps import get_github_client, get_llm, get_notion_client
 from app.logging_config import configure_logging, get_logger
 from app.rate_limit import limiter
 from app.services.ollama_client import OllamaError
@@ -36,6 +36,8 @@ async def lifespan(app: FastAPI):
     )
     yield
     await get_llm().aclose()
+    await get_notion_client().aclose()
+    await get_github_client().aclose()
     await get_engine().dispose()
 
 

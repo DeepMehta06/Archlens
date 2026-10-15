@@ -9,6 +9,7 @@ from app.database import get_db, get_session_factory
 from app.models import Project
 from app.services.chat_orchestrator import ChatDeps
 from app.services.embeddings import EmbeddingService
+from app.services.github_client import GitHubClient
 from app.services.hybrid_retrieval import Retriever
 from app.services.notion_export import NotionClient
 from app.services.ollama_client import OllamaClient
@@ -29,6 +30,11 @@ def _notion_client() -> NotionClient:
     return NotionClient()
 
 
+@lru_cache
+def _github_client() -> GitHubClient:
+    return GitHubClient()
+
+
 def get_llm() -> OllamaClient:
     return _llm()
 
@@ -39,6 +45,10 @@ def get_embedder() -> EmbeddingService:
 
 def get_notion_client() -> NotionClient:
     return _notion_client()
+
+
+def get_github_client() -> GitHubClient:
+    return _github_client()
 
 
 def get_retriever(embedder: EmbeddingService = Depends(get_embedder)) -> Retriever:
@@ -72,6 +82,7 @@ __all__ = [
     "get_llm",
     "get_embedder",
     "get_notion_client",
+    "get_github_client",
     "get_retriever",
     "get_session_factory_dep",
     "get_chat_deps",

@@ -28,7 +28,7 @@ from app.services.extraction import (
     roles_for,
     stated_by_from_roles,
 )
-from app.services.jobs import update_job
+from app.services.jobs import fail_source_and_job, update_job
 from app.services.ollama_client import OllamaBadResponse, OllamaError
 from app.services.media_ingestion import MediaError, evidence_kind_for, media_to_text
 from app.services.whatsapp_parser import ParsedChat, parse_whatsapp
@@ -272,19 +272,9 @@ async def process_source(
             session_factory, job_id, status=JobStatus.COMPLETED, stage="complete", progress=100, result=result
         )
     except (OllamaError, ValueError, MediaError) as exc:
-        await _fail(session_factory, source_id, job_id, str(exc))
+        await fail_source_and_job(session_factory, source_id, job_id, str(exc))
     except Exception:
         logger.exception("ingestion_failed", source_id=source_id)
-        await _fail(session_factory, source_id, job_id, "Processing failed unexpectedly. Check the server logs.")
-
-
-async def _fail(
-    session_factory: async_sessionmaker[AsyncSession], source_id: str, job_id: str, message: str
-) -> None:
-    async with session_factory() as session:
-        source = await session.get(Source, source_id)
-        if source is not None:
-            source.status = SourceStatus.FAILED
-            source.error_message = message
-            await session.commit()
-    await update_job(session_factory, job_id, status=JobStatus.FAILED, stage="failed", error=message)
+        await fail_source_and_job(
+            session_factory, source_id, job_id, "Processing failed unexpectedly. Check the server logs."
+        )

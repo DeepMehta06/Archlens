@@ -7,11 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.config import get_settings
 from app.database import get_db
-from app.deps import get_embedder, get_llm, get_session_factory_dep, project_or_404
+from app.deps import get_embedder, get_github_client, get_llm, get_session_factory_dep, project_or_404
 from app.models import Job, Source, SourceChunk
 from app.rate_limit import limiter, llm_limit
-from app.schemas import ChunkOut, JobOut, SourceCreated, SourceOut, SourceTextCreate, SourceUpdate
+from app.schemas import ChunkOut, GitHubSourceCreate, JobOut, SourceCreated, SourceOut, SourceTextCreate, SourceUpdate
+from app.services.code_ingestion import create_github_source, process_github_source
 from app.services.embeddings import EmbeddingService
+from app.services.github_client import GitHubClient, GitHubError
 from app.services.jobs import create_job
 from app.services.media_ingestion import source_type_for
 from app.services.source_ingestion import (
@@ -119,6 +121,38 @@ async def upload_source(
         session, project, text, me=me, filename=name[:255], mime_type=file.content_type
     )
     return await _start(background, session, factory, llm, embedder, source, analyze)
+
+
+@router.post(
+    "/projects/{project_id}/sources/github", response_model=SourceCreated, status_code=status.HTTP_201_CREATED
+)
+@limiter.limit(llm_limit)
+async def add_github_source(
+    request: Request,
+    project_id: str,
+    body: GitHubSourceCreate,
+    background: BackgroundTasks,
+    session: AsyncSession = Depends(get_db),
+    factory: async_sessionmaker[AsyncSession] = Depends(get_session_factory_dep),
+    embedder: EmbeddingService = Depends(get_embedder),
+    github: GitHubClient = Depends(get_github_client),
+) -> SourceCreated:
+    """Connects a GitHub repo as a read-only code source: no extraction, no ledger items --
+    purely indexed for the code-affected-files retrieval the change-analysis pipeline uses."""
+    project = await project_or_404(session, project_id)
+    try:
+        source = await create_github_source(session, project, body.repo, body.ref)
+    except GitHubError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
+    job = None
+    if body.analyze:
+        job = await create_job(session, source.project_id, source.id, "github_ingest")
+    await session.commit()
+    if job is not None:
+        background.add_task(process_github_source, factory, embedder, source.id, job.id, github)
+    return SourceCreated(
+        source=SourceOut.model_validate(source), job=JobOut.model_validate(job) if job else None
+    )
 
 
 @router.get("/projects/{project_id}/sources/{source_id}")

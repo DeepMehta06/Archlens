@@ -56,47 +56,51 @@ class AnnIndexService:
         self._cache: dict[str, _ProjectIndex] = {}
         self._locks: dict[str, asyncio.Lock] = {}
 
-    def _lock_for(self, project_id: str) -> asyncio.Lock:
-        lock = self._locks.get(project_id)
+    def _lock_for(self, cache_key: str) -> asyncio.Lock:
+        lock = self._locks.get(cache_key)
         if lock is None:
-            lock = self._locks[project_id] = asyncio.Lock()
+            lock = self._locks[cache_key] = asyncio.Lock()
         return lock
 
-    def invalidate(self, project_id: str) -> None:
-        self._cache.pop(project_id, None)
+    def invalidate(self, cache_key: str) -> None:
+        self._cache.pop(cache_key, None)
 
     async def search(
         self,
-        project_id: str,
+        cache_key: str,
         ids: list[str],
         matrix: np.ndarray,
         query_vector: list[float],
         k: int,
     ) -> list[tuple[str, float]]:
+        """``cache_key`` scopes the cached index -- callers searching different domains of the
+        same project (e.g. conversation chunks vs. a github_repo's code chunks) must pass
+        different keys, or the two domains' different id sets will invalidate each other's
+        cached index on every call."""
         if not ids:
             return []
         if not HNSWLIB_AVAILABLE or not self._settings.ANN_ENABLED or len(ids) < self._settings.ANN_MIN_VECTORS:
             return cosine_top_k(query_vector, ids, matrix, k)
 
         id_set = frozenset(ids)
-        cached = self._cache.get(project_id)
+        cached = self._cache.get(cache_key)
         if cached is None or cached.id_set != id_set:
-            async with self._lock_for(project_id):
-                cached = self._cache.get(project_id)
+            async with self._lock_for(cache_key):
+                cached = self._cache.get(cache_key)
                 if cached is None or cached.id_set != id_set:
                     try:
                         cached = await asyncio.to_thread(self._build_safe, ids, matrix)
                     except Exception as exc:  # noqa: BLE001 - any build failure degrades to exact search
-                        logger.warning("ann_build_failed", project_id=project_id, error=str(exc))
+                        logger.warning("ann_build_failed", cache_key=cache_key, error=str(exc))
                         return cosine_top_k(query_vector, ids, matrix, k)
-                    self._cache[project_id] = cached
-                    logger.info("ann_index_built", project_id=project_id, vectors=len(ids))
+                    self._cache[cache_key] = cached
+                    logger.info("ann_index_built", cache_key=cache_key, vectors=len(ids))
 
         try:
             query = np.asarray([query_vector], dtype=np.float32)
             labels, distances = await asyncio.to_thread(cached.index.knn_query, query, k=min(k, len(cached.ids)))
         except Exception as exc:  # noqa: BLE001 - query failure degrades to exact search, never an error
-            logger.warning("ann_query_failed", project_id=project_id, error=str(exc))
+            logger.warning("ann_query_failed", cache_key=cache_key, error=str(exc))
             return cosine_top_k(query_vector, ids, matrix, k)
 
         return [(cached.ids[i], 1.0 - float(d)) for i, d in zip(labels[0], distances[0])]

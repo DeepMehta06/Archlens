@@ -353,4 +353,10 @@ class NotionExportOut(BaseModel):
     url: str
 
 
+class GitHubSourceCreate(BaseModel):
+    repo: str = Field(min_length=1)
+    ref: Optional[str] = None
+    analyze: bool = True
+
+
 LedgerItemDetail.model_rebuild()

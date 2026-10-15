@@ -5,6 +5,7 @@ from typing import Any, Optional
 from pydantic import BaseModel
 
 from app.services.embeddings import EmbeddingService, normalize_vectors
+from app.services.github_client import CodeFile
 from app.services.notion_export import NotionExportResult
 from app.services.ollama_client import ChatResult
 
@@ -106,6 +107,21 @@ class FakeLLM:
         text = self.text_queue.pop(0) if self.text_queue else ""
         for word in text.split(" "):
             yield word + " "
+
+    async def aclose(self) -> None:
+        return None
+
+
+class FakeGitHubClient:
+    """Returns canned files instead of calling the real GitHub API."""
+
+    def __init__(self, files: Optional[list[CodeFile]] = None) -> None:
+        self.files = files if files is not None else [CodeFile(path="app/payments.py", text="def charge():\n    pass\n")]
+        self.requested: list[tuple[str, str, Optional[str]]] = []
+
+    async def fetch_files(self, owner: str, repo: str, ref: Optional[str] = None) -> list[CodeFile]:
+        self.requested.append((owner, repo, ref))
+        return self.files
 
     async def aclose(self) -> None:
         return None

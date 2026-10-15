@@ -8,6 +8,7 @@ class SourceType(str, Enum):
     IMAGE = "image"
     AUDIO = "audio"
     PDF = "pdf"
+    GITHUB_REPO = "github_repo"
 
 
 class SourceStatus(str, Enum):

@@ -58,15 +58,23 @@ async def delete_project_index(session: AsyncSession, project_id: str) -> None:
 
 
 async def search_chunks(
-    session: AsyncSession, project_id: str, query: str, limit: int = 10
+    session: AsyncSession, project_id: str, query: str, limit: int = 10, include_code: bool = False
 ) -> list[tuple[str, float]]:
+    """Searches conversation/document chunks by default. ``include_code=True`` searches the other
+    domain instead -- a github_repo source's chunks -- never both at once, so a client's chat
+    text can never surface as "affected code" and a code snippet can never surface as something
+    the client said."""
     match = build_match_query(query)
     if match is None:
         return []
+    domain_filter = "sources.source_type = 'github_repo'" if include_code else "sources.source_type != 'github_repo'"
     result = await session.execute(
         text(
-            "SELECT chunk_id, bm25(chunk_fts) AS score FROM chunk_fts "
-            "WHERE chunk_fts MATCH :match AND project_id = :pid ORDER BY score ASC LIMIT :limit"
+            "SELECT chunk_fts.chunk_id, bm25(chunk_fts) AS score FROM chunk_fts "
+            "JOIN source_chunks ON source_chunks.id = chunk_fts.chunk_id "
+            "JOIN sources ON sources.id = source_chunks.source_id "
+            f"WHERE chunk_fts MATCH :match AND chunk_fts.project_id = :pid AND {domain_filter} "
+            "ORDER BY score ASC LIMIT :limit"
         ),
         {"match": match, "pid": project_id, "limit": limit},
     )
