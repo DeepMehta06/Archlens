@@ -1,6 +1,7 @@
 """Application settings, driven by environment variables and an optional .env file."""
 from functools import lru_cache
 from pathlib import Path
+from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -49,6 +50,11 @@ class Settings(BaseSettings):
     RATE_LIMIT_LLM: str = "10/minute"
 
     ALLOWED_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+
+    NOTION_API_KEY: Optional[str] = None
+    NOTION_PARENT_PAGE_ID: Optional[str] = None
+
+    GITHUB_READ_TOKEN: Optional[str] = None
 
     @property
     def is_development(self) -> bool:
