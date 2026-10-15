@@ -10,7 +10,7 @@ export function Hero({ onNewProject }: { onNewProject: () => void }) {
     <section className="relative overflow-hidden">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-gradient-to-b from-accent-soft/60 via-accent-soft/15 to-transparent" />
 
-      <div className="mx-auto flex max-w-5xl flex-col items-center px-6 pt-20 pb-16 text-center sm:pt-28">
+      <div className="mx-auto flex max-w-4xl flex-col items-center px-6 pt-20 pb-16 text-center sm:pt-28">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-ink-soft">
           <Sparkle className="size-3 text-accent" />
           Local. Private. Built from real client chats.
@@ -55,7 +55,7 @@ export function Hero({ onNewProject }: { onNewProject: () => void }) {
         </ul>
       </div>
 
-      <div className="mx-auto max-w-5xl px-6 pb-20">
+      <div className="mx-auto max-w-6xl px-6 pb-20 lg:px-12">
         <AppMockup />
       </div>
     </section>

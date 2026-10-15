@@ -13,8 +13,8 @@ const FEEDBACK_NOTES = ['Can we also add COD?', 'Need invoice in PDF', 'Actually
 
 export function ProblemSection() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-20">
-      <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+    <section className="w-full bg-canvas py-24">
+      <div className="mx-auto grid max-w-[1400px] gap-12 px-6 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-12">
         <div>
           <span className="inline-flex items-center rounded-full bg-canvas-deep px-3 py-1 text-xs font-medium text-ink-soft">
             The problem

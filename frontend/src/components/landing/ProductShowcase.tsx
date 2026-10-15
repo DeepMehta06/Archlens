@@ -23,12 +23,12 @@ function ShowcaseHeader({ icon: Icon, label }: { icon: typeof FileStack; label: 
 
 export function ProductShowcase() {
   return (
-    <section className="mx-auto max-w-6xl px-6 pb-24">
-      <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+    <section className="w-full bg-ink py-24">
+      <div className="mx-auto grid max-w-[1400px] gap-10 px-6 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-12">
         <div>
-          <span className="inline-flex items-center rounded-full bg-canvas-deep px-3 py-1 text-xs font-medium text-ink-soft">What it produces</span>
-          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">From an empty project to a diagram you can hand off.</h2>
-          <p className="mt-4 max-w-md text-base leading-relaxed text-ink-soft">
+          <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/70">What it produces</span>
+          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">From an empty project to a diagram you can hand off.</h2>
+          <p className="mt-4 max-w-md text-base leading-relaxed text-white/60">
             A project starts empty. As the conversation gets parsed, you get a cited ledger, a verified evidence trail,
             and architecture diagrams generated from what was actually agreed.
           </p>

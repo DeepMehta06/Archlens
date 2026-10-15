@@ -9,18 +9,18 @@ const BEFORE = [
 
 export function SolutionSection() {
   return (
-    <section className="mx-auto max-w-6xl px-6 pb-24">
-      <div className="text-center">
-        <span className="inline-flex items-center rounded-full bg-canvas-deep px-3 py-1 text-xs font-medium text-ink-soft">The solution</span>
-        <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">ArchLens turns chat into a cited ledger.</h2>
-        <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-ink-soft">
+    <section className="w-full bg-ink py-24">
+      <div className="mx-auto max-w-[1400px] px-6 text-center lg:px-12">
+        <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/70">The solution</span>
+        <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">ArchLens turns chat into a cited ledger.</h2>
+        <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-white/60">
           Every item names the exact words it came from, stays "needs review" until you approve it, and keeps the
           certainty separate from the approval.
         </p>
       </div>
 
-      <div className="mt-12 grid items-center gap-6 lg:grid-cols-[1fr_auto_1fr] lg:gap-8">
-        <div className="overflow-hidden rounded-2xl border border-border shadow-sm">
+      <div className="mx-auto mt-12 grid max-w-[1400px] items-center gap-6 px-6 lg:grid-cols-[1fr_auto_1fr] lg:gap-8 lg:px-12">
+        <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-xl">
           <div className="flex items-center gap-2 border-b border-border bg-canvas-deep/50 px-4 py-2.5">
             <span className="text-xs font-semibold text-ink-soft">Before</span>
             <span className="text-xs text-ink-soft">— pasted WhatsApp export</span>
@@ -35,9 +35,9 @@ export function SolutionSection() {
           </div>
         </div>
 
-        <ArrowRight className="mx-auto hidden size-6 shrink-0 rotate-90 text-ink-soft lg:block lg:rotate-0" />
+        <ArrowRight className="mx-auto hidden size-6 shrink-0 rotate-90 text-white/50 lg:block lg:rotate-0" />
 
-        <div className="overflow-hidden rounded-2xl border border-border shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-xl">
           <div className="flex items-center gap-2 border-b border-border bg-canvas-deep/50 px-4 py-2.5">
             <span className="text-xs font-semibold text-ink-soft">After</span>
             <span className="text-xs text-ink-soft">— structured, cited, reviewable</span>
