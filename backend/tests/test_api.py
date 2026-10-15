@@ -353,6 +353,10 @@ async def test_github_source_indexes_code_without_running_extraction(env):
     assert (await client.get(f"/api/projects/{project_id}/ledger")).json() == []
     assert not [c for c in llm.calls if c["model"] == "ExtractionOutput"]
 
+    detail = await client.get(f"/api/projects/{project_id}/sources/{source['id']}")
+    chunk = detail.json()["chunks"][0]
+    assert chunk["location_json"] == {"file_path": "app/refund.py", "start_line": 1, "end_line": 2}
+
 
 async def test_github_source_rejects_an_unparsable_repo(env):
     client, _, _ = env

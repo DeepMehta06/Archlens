@@ -199,6 +199,7 @@ class ChunkOut(ApiModel):
     units_json: list[dict[str, Any]]
     sender: Optional[str]
     timestamp_text: Optional[str]
+    location_json: Optional[dict[str, Any]] = None
 
 
 class EvidenceOut(ApiModel):

@@ -1,6 +1,6 @@
 # ArchLens: backend handoff for the frontend
 
-Backend v0.2 is complete for text and WhatsApp input, has 82 passing tests, and has been run end to end on live `gemma4:e4b`. The existing `frontend/` is the old v1 UI and **does not match this API**; rebuild it, do not patch it.
+Backend v0.2 is complete for text and WhatsApp input, has 108 passing tests, and has been run end to end on live `gemma4:e4b`. The existing `frontend/` is the old v1 UI and **does not match this API**; rebuild it, do not patch it.
 
 Base URL `http://127.0.0.1:8000`, all routes under `/api`, interactive docs at `/docs`. CORS allows `http://localhost:5173` and `http://127.0.0.1:5173` (`ALLOWED_ORIGINS`). Start with `uvicorn app.main:app --port 8000` from `backend/`. Vite dev server on 5173.
 
@@ -31,14 +31,14 @@ Layout decided with the user: chat-first. Chat in the centre, workspace panel on
 - verification_status: `verified | unverified | not_applicable`
 - evidence_kind: `text_quote | transcript_quote | visual_observation`. `transcript_quote` comes from image and audio uploads: label it "from transcript" and show `verification_note`. `visual_observation` is not produced.
 - question priority: `low | medium | high`; status: `open | resolved | dismissed`
-- source status: `uploaded | processing | processed | failed`; source_type: `text | whatsapp | image | audio | pdf` (all are produced now; media files are kept on the server but there is no download endpoint yet)
+- source status: `uploaded | processing | processed | failed`; source_type: `text | whatsapp | image | audio | pdf | github_repo` (media files are kept on the server but there is no download endpoint yet; a `github_repo` source never produces ledger items -- it exists purely so the change-prompt generator has code to retrieve against, see below)
 - job status: `queued | processing | completed | failed`
 - change classification: `already_covered | new_requirement | contradiction | unclear`
 - diagram_type: `architecture | sequence | er | component | requirements`
 
 ## Endpoints
 
-The six routes that call Gemma (`sources` create/upload, `chat`, `diagrams`, `compare`, `draft-message`) are rate-limited per client IP (`RATE_LIMIT_LLM`, default 10/minute); everything else defaults to 60/minute. A limit hit returns `429` with body `{"error": "Rate limit exceeded: ..."}` -- note the key is `error`, not the `detail` shape every other error response uses, so handle 429 as its own case.
+The routes that call Gemma (`sources` create/upload/github, `chat`, `diagrams`, `compare`, `draft-message`, `ledger-items/{id}/prompt`) are rate-limited per client IP (`RATE_LIMIT_LLM`, default 10/minute); everything else defaults to 60/minute. A limit hit returns `429` with body `{"error": "Rate limit exceeded: ..."}` -- note the key is `error`, not the `detail` shape every other error response uses, so handle 429 as its own case.
 
 | Method | Path | Notes |
 |---|---|---|
@@ -49,12 +49,14 @@ The six routes that call Gemma (`sources` create/upload, `chat`, `diagrams`, `co
 | GET | `/projects/{id}/sources` | |
 | POST | `/projects/{id}/sources` | `{text, label?, me?, analyze=true}` returns `{source, job}` |
 | POST | `/projects/{id}/sources/upload` | multipart: `.txt`, `.md`, `.pdf`, `.png`, `.jpg`, `.jpeg`, `.webp`, `.wav`. Returns `{source, job}`. Media jobs have a `transcribing` stage first (image or audio can take several seconds). Unsupported types return 415 with the list. |
-| GET | `/projects/{id}/sources/{sid}` | source with chunks (`units_json` = numbered messages with sender and time) |
+| POST | `/projects/{id}/sources/github` | **Optional**, needs `GITHUB_READ_TOKEN` set server-side. `{repo: "owner/repo" or a github.com URL, ref?, analyze=true}` returns `{source, job}` same shape as other sources. Job stages: `fetching`, `indexing`, `embedding`, `complete`. Produces zero ledger items by design -- don't show it in ledger-related counts. |
+| GET | `/projects/{id}/sources/{sid}` | source with chunks (`units_json` = numbered messages with sender and time; empty for `github_repo` -- each chunk's `location_json` has `{file_path, start_line, end_line}` instead) |
 | PATCH | `/projects/{id}/sources/{sid}` | `{me}`: which sender is "you" (needed when WhatsApp sender detection is ambiguous) |
 | GET | `/jobs/{id}` | `{status, stage, progress 0-100, error_message, result_json}`. Poll about every 1 s while `queued/processing`. Real stages, not fake. Demo import takes about 28 s. |
 | GET | `/projects/{id}/ledger` | query `status`, `type`, `evidence_status`; items include `evidence_total`, `evidence_verified`, `open_questions` |
 | GET | `/ledger-items/{id}` | adds `evidence[]` (quote, highlight, unit_numbers, speaker, speaker_role, verification_status, verification_note, source_label, full `chunk` with surrounding messages) and `questions[]` |
 | PATCH | `/ledger-items/{id}` | any of `title, description, item_type, evidence_status, approval_status, risk_level` |
+| POST | `/ledger-items/{id}/prompt` | **Optional**, needs a `github_repo` source connected first (409 if none). `{target: "generic"\|"claude_code"\|"cursor"\|"github_copilot" = "generic"}` returns `{prompt, target, affected_files: [{file_path, start_line, end_line}]}`. `prompt` is plain text, ready to copy-paste into the named coding agent -- render it in a code/monospace block with a copy button, not as markdown. ArchLens does not open anything in the repo itself; this is read-only output for the user to act on. |
 | GET | `/projects/{id}/questions` | default `status=open` |
 | PATCH | `/questions/{id}` | `{status, resolution_note}` |
 | POST | `/projects/{id}/draft-message` | `{language: "english"|"hinglish", question_ids?}` returns `{language, text, question_ids}` |
@@ -63,6 +65,7 @@ The six routes that call Gemma (`sources` create/upload, `chat`, `diagrams`, `co
 | GET | `/change-reports/{id}` | `results[]: {incoming_claim, classification, related_display_ids, related_baseline_item_ids, supporting_chunk_ids, explanation, confidence, candidate_item_id}`, plus `draft_message` (always null today: compare does not generate one; use `/draft-message`) |
 | POST / GET | `/projects/{id}/diagrams` | create `{diagram_type, focus?}`; returns `{mermaid_source, title, warnings_json[]}`. Render with mermaid.js. Show `warnings_json` (dropped dangling references). |
 | GET | `/projects/{id}/export.md` | Markdown scope brief, `text/markdown`, has a filename header |
+| POST | `/projects/{id}/export/notion` | **Optional**, needs `NOTION_API_KEY`/`NOTION_PARENT_PAGE_ID` set server-side (501 if not). Same content as the Markdown export, as a new Notion page. Returns `{page_id, url}` -- show the `url` as a link to open the page. |
 | POST | `/projects/{id}/chat` | SSE stream, below |
 | GET | `/projects/{id}/chat/messages?thread_id=` | history: `{role, content, citations_json, cards_json}`. Render stored cards from `cards_json` the same way as live ones. |
 | POST | `/demo/seed` | creates (or returns) the labelled "Pune Clinic App (demo data)" project, runs ingestion in the background. Returns `{project, sources, job, compare_example, created}`. `compare_example` is a ready-made incoming request for the compare demo. |
