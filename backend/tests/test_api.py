@@ -5,11 +5,12 @@ from pathlib import Path
 import httpx
 import pytest
 
-from app.config import get_settings
+from app.config import Settings, get_settings
 from app.database import get_db
-from app.deps import get_embedder, get_llm, get_session_factory_dep
+from app.deps import get_embedder, get_llm, get_notion_client, get_session_factory_dep
 from app.main import app
-from tests.fakes import FakeEmbedder, FakeLLM, UnavailableEmbedder
+from app.services.notion_export import NotionClient
+from tests.fakes import FakeEmbedder, FakeLLM, FakeNotionClient, UnavailableEmbedder
 
 DEMO_CHAT = (Path(__file__).resolve().parent.parent / "app" / "demo" / "pune_clinic_chat.txt").read_text(
     encoding="utf-8"
@@ -237,6 +238,46 @@ async def test_export_contains_baseline_evidence_questions_and_legend(env):
     assert "What is the refund rule for cancellations?" in md
     assert "## Awaiting review" in md and "Refund policy" in md
     assert "not a legal contract" in md
+
+
+async def test_notion_export_without_configuration_errors_clearly(env):
+    client, _, _ = env
+    project_id, _, _ = await ready_project(client)
+    # Deliberately blanked regardless of this machine's real .env, so the test is hermetic.
+    unconfigured = NotionClient(settings=Settings(NOTION_API_KEY=None, NOTION_PARENT_PAGE_ID=None))
+    app.dependency_overrides[get_notion_client] = lambda: unconfigured
+
+    response = await client.post(f"/api/projects/{project_id}/export/notion")
+
+    del app.dependency_overrides[get_notion_client]
+    assert response.status_code == 501
+    assert "NOTION_API_KEY" in response.json()["detail"]
+
+
+async def test_notion_export_creates_a_page_titled_after_the_project(env):
+    client, _, _ = env
+    project_id, _, _ = await ready_project(client)
+    items = (await client.get(f"/api/projects/{project_id}/ledger")).json()
+    upi = next(i for i in items if i["title"] == "UPI advance payment")
+    await client.patch(f"/api/ledger-items/{upi['id']}", json={"approval_status": "approved"})
+    await client.post(f"/api/projects/{project_id}/snapshots", json={"label": "Kickoff"})
+    fake_notion = FakeNotionClient()
+    app.dependency_overrides[get_notion_client] = lambda: fake_notion
+
+    response = await client.post(f"/api/projects/{project_id}/export/notion")
+
+    del app.dependency_overrides[get_notion_client]
+    assert response.status_code == 201
+    assert response.json() == {"page_id": "fake_page_id", "url": "https://notion.so/fake_page_id"}
+    assert len(fake_notion.created) == 1
+    assert fake_notion.created[0]["title"] == "Clinic"
+    block_texts = [
+        b[b["type"]]["rich_text"][0]["text"]["content"]
+        for b in fake_notion.created[0]["blocks"]
+        if b[b["type"]]["rich_text"]
+    ]
+    assert any("UPI advance payment" in t for t in block_texts)
+    assert any("Kickoff" in t for t in block_texts)
 
 
 async def test_diagram_endpoint_compiles_spec_and_reports_dropped_references(env):

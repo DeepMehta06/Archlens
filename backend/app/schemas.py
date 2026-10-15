@@ -348,4 +348,9 @@ class ChatMessageOut(ApiModel):
     created_at: datetime
 
 
+class NotionExportOut(BaseModel):
+    page_id: str
+    url: str
+
+
 LedgerItemDetail.model_rebuild()

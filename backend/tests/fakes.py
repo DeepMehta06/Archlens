@@ -5,6 +5,7 @@ from typing import Any, Optional
 from pydantic import BaseModel
 
 from app.services.embeddings import EmbeddingService, normalize_vectors
+from app.services.notion_export import NotionExportResult
 from app.services.ollama_client import ChatResult
 
 CONCEPTS = [
@@ -108,6 +109,17 @@ class FakeLLM:
 
     async def aclose(self) -> None:
         return None
+
+
+class FakeNotionClient:
+    """Records every page it was asked to create instead of calling the real Notion API."""
+
+    def __init__(self) -> None:
+        self.created: list[dict[str, Any]] = []
+
+    async def create_page(self, title: str, blocks: list[dict[str, Any]]) -> NotionExportResult:
+        self.created.append({"title": title, "blocks": blocks})
+        return NotionExportResult(page_id="fake_page_id", url="https://notion.so/fake_page_id")
 
 
 def as_json(value: Any) -> str:
