@@ -155,6 +155,29 @@ async def test_hit_carries_source_label_and_location(session):
     assert hit.location["ordinal"] == 2
 
 
+async def test_chunk_location_json_is_surfaced_on_the_hit(session):
+    project, source, _ = await seed(session)
+    chunk = SourceChunk(
+        project_id=project.id,
+        source_id=source.id,
+        ordinal=99,
+        text="unique_marker_xyz some text",
+        content_hash="loc-test",
+        units_json=[],
+        location_json={"file_path": "app/refund.py", "start_line": 1, "end_line": 3},
+    )
+    session.add(chunk)
+    await session.flush()
+    await lexical_search.index_chunks(session, [chunk])
+    await session.commit()
+    retriever = Retriever(UnavailableEmbedder())
+
+    result = await retriever.search_chunks(session, project.id, "unique_marker_xyz")
+
+    assert result.hits[0].location["file_path"] == "app/refund.py"
+    assert result.hits[0].location["start_line"] == 1 and result.hits[0].location["end_line"] == 3
+
+
 async def test_code_chunks_never_leak_into_conversation_search_or_vice_versa(session):
     project, chat_source, chunks = await seed(session)
     code_source = Source(

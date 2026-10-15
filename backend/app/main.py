@@ -8,7 +8,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
-from app.api import changes, chat, demo, diagrams, exports, health, ledger, projects, questions, sources
+from app.api import change_prompt, changes, chat, demo, diagrams, exports, health, ledger, projects, questions, sources
 from app.config import get_settings
 from app.database import get_engine, init_db
 from app.deps import get_github_client, get_llm, get_notion_client
@@ -78,7 +78,7 @@ async def unhandled_error_handler(request: Request, exc: Exception) -> JSONRespo
     )
 
 
-for module in (health, projects, sources, ledger, questions, changes, diagrams, exports, chat, demo):
+for module in (health, projects, sources, ledger, questions, changes, diagrams, exports, chat, demo, change_prompt):
     app.include_router(module.router)
 
 

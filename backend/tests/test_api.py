@@ -364,6 +364,50 @@ async def test_github_source_rejects_an_unparsable_repo(env):
     assert "owner/repo" in bad.json()["detail"]
 
 
+async def test_change_prompt_requires_a_connected_repo_first(env):
+    client, _, _ = env
+    project_id, _, _ = await ready_project(client)
+    items = (await client.get(f"/api/projects/{project_id}/ledger")).json()
+    refund = next(i for i in items if i["title"] == "Refund policy")
+
+    response = await client.post(f"/api/ledger-items/{refund['id']}/prompt", json={})
+
+    assert response.status_code == 409
+    assert "Connect" in response.json()["detail"]
+
+
+async def test_change_prompt_cites_only_retrieved_files_and_strips_invented_markers(env):
+    client, llm, _ = env
+    project_id, _, _ = await ready_project(client)
+    items = (await client.get(f"/api/projects/{project_id}/ledger")).json()
+    refund = next(i for i in items if i["title"] == "Refund policy")
+
+    fake_github = FakeGitHubClient(
+        files=[CodeFile(path="app/refund.py", text="# refund policy implementation\ndef calculate():\n    return 7\n")]
+    )
+    app.dependency_overrides[get_github_client] = lambda: fake_github
+    connected = await client.post(f"/api/projects/{project_id}/sources/github", json={"repo": "octocat/hello-world"})
+    assert connected.status_code == 201
+    job = (await client.get(f"/api/jobs/{connected.json()['job']['id']}")).json()
+    assert job["status"] == "completed", job
+
+    llm.queue_text(
+        "Goal: implement the refund rule.\n"
+        "Evidence: the client said the refund rule is not decided.\n"
+        "Affected areas: [F1] looks directly relevant. [F2] does not exist.\n"
+        "Suggested approach: update [F1] once the policy is confirmed."
+    )
+    result = await client.post(f"/api/ledger-items/{refund['id']}/prompt", json={"target": "claude_code"})
+
+    del app.dependency_overrides[get_github_client]
+    assert result.status_code == 200
+    body = result.json()
+    assert body["target"] == "claude_code"
+    assert "app/refund.py:1-3" in body["prompt"]
+    assert "[F1]" not in body["prompt"] and "[F2]" not in body["prompt"]
+    assert body["affected_files"] == [{"file_path": "app/refund.py", "start_line": 1, "end_line": 3}]
+
+
 async def test_telling_the_app_who_you_are_recomputes_who_stated_each_item(env):
     client, llm, _ = env
     project_id = await make_project(client, my_name=None)

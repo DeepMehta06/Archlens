@@ -137,6 +137,7 @@ class Retriever:
                     "message_index": chunks[f.id].message_index,
                     "sender": chunks[f.id].sender,
                     "timestamp_text": chunks[f.id].timestamp_text,
+                    **(chunks[f.id].location_json or {}),
                 },
             )
             for f in fused

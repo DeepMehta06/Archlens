@@ -359,4 +359,14 @@ class GitHubSourceCreate(BaseModel):
     analyze: bool = True
 
 
+class ChangePromptRequest(BaseModel):
+    target: Literal["generic", "claude_code", "cursor", "github_copilot"] = "generic"
+
+
+class ChangePromptOut(BaseModel):
+    prompt: str
+    target: str
+    affected_files: list[dict[str, Any]]
+
+
 LedgerItemDetail.model_rebuild()
