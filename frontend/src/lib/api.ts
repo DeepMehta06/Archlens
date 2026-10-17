@@ -4,10 +4,13 @@ import type {
   Diagram,
   DiagramType,
   HealthStatus,
+  ImplementationPrompt,
   Job,
   LedgerItem,
   LedgerItemDetail,
+  NotionExportResult,
   Project,
+  PromptTarget,
   Question,
   Snapshot,
   Source,
@@ -73,6 +76,12 @@ export const api = {
     return request<{ source: Source; job: Job }>(`/projects/${projectId}/sources/upload`, { method: 'POST', body: form });
   },
 
+  connectGithubSource: (projectId: string, data: { repo: string; ref?: string; analyze?: boolean }) =>
+    request<{ source: Source; job: Job }>(`/projects/${projectId}/sources/github`, {
+      method: 'POST',
+      body: JSON.stringify({ analyze: true, ...data }),
+    }),
+
   getJob: (id: string) => request<Job>(`/jobs/${id}`),
 
   listLedger: (projectId: string, params?: { status?: string; type?: string; evidence_status?: string }) => {
@@ -82,6 +91,8 @@ export const api = {
   getLedgerItem: (id: string) => request<LedgerItemDetail>(`/ledger-items/${id}`),
   updateLedgerItem: (id: string, data: Partial<Pick<LedgerItem, 'title' | 'description' | 'item_type' | 'evidence_status' | 'approval_status' | 'risk_level'>>) =>
     request<LedgerItem>(`/ledger-items/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  generateImplementationPrompt: (itemId: string, target: PromptTarget = 'generic') =>
+    request<ImplementationPrompt>(`/ledger-items/${itemId}/prompt`, { method: 'POST', body: JSON.stringify({ target }) }),
 
   listQuestions: (projectId: string, status = 'open') => request<Question[]>(`/projects/${projectId}/questions?status=${status}`),
   updateQuestion: (id: string, data: { status?: string; resolution_note?: string }) =>
@@ -106,6 +117,7 @@ export const api = {
   listDiagrams: (projectId: string) => request<Diagram[]>(`/projects/${projectId}/diagrams`),
 
   exportUrl: (projectId: string) => `${API_BASE}/projects/${projectId}/export.md`,
+  exportNotion: (projectId: string) => request<NotionExportResult>(`/projects/${projectId}/export/notion`, { method: 'POST' }),
 
   chatHistory: (projectId: string, threadId: string) => request(`/projects/${projectId}/chat/messages?thread_id=${threadId}`),
 

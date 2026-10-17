@@ -4,15 +4,20 @@ The FTS5 tables are plain search indexes keyed by an unindexed id column; the or
 tables stay the source of truth. Devanagari combining marks are declared as token
 characters because the default unicode61 tokenizer would otherwise split Hindi words.
 """
+import asyncio
 from collections.abc import AsyncIterator
 from functools import lru_cache
 
 from sqlalchemy import event, text
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
 from app.config import get_settings
 from app.models import Base
+
+_COMMIT_RETRY_ATTEMPTS = 5
+_COMMIT_RETRY_BASE_DELAY = 0.2
 
 _DEVANAGARI_MARKS = "".join(
     chr(c)
@@ -76,6 +81,35 @@ async def init_db(engine: AsyncEngine) -> None:
                 raise RuntimeError(
                     "SQLite FTS5 is unavailable in this Python build; lexical search cannot run."
                 ) from exc
+
+
+def is_database_locked_error(exc: OperationalError) -> bool:
+    return "database is locked" in str(exc).lower()
+
+
+async def retry_on_locked(
+    session_factory: async_sessionmaker[AsyncSession], body
+) -> None:
+    """Run ``body(session)`` inside a fresh session, retrying the whole unit of
+    work on SQLITE_BUSY-style lock errors.
+
+    busy_timeout covers SQLite's own internal wait, but a connection whose
+    -wal/-shm sidecar files sit on a synced folder (e.g. OneDrive) can see the
+    sync client hold a conflicting file handle and fail the lock wait
+    immediately rather than retrying it. Retrying the whole read-modify-write
+    unit (not just the commit) is required because a rollback expires any
+    pending attribute changes on the loaded objects.
+    """
+    for attempt in range(_COMMIT_RETRY_ATTEMPTS):
+        try:
+            async with session_factory() as session:
+                await body(session)
+                await session.commit()
+            return
+        except OperationalError as exc:
+            if not is_database_locked_error(exc) or attempt == _COMMIT_RETRY_ATTEMPTS - 1:
+                raise
+            await asyncio.sleep(_COMMIT_RETRY_BASE_DELAY * (2**attempt))
 
 
 async def get_db() -> AsyncIterator[AsyncSession]:

@@ -8,7 +8,8 @@ export type EvidenceKind = 'text_quote' | 'transcript_quote' | 'visual_observati
 export type QuestionPriority = 'low' | 'medium' | 'high';
 export type QuestionStatus = 'open' | 'resolved' | 'dismissed';
 export type SourceStatus = 'uploaded' | 'processing' | 'processed' | 'failed';
-export type SourceType = 'text' | 'whatsapp' | 'image' | 'audio' | 'pdf';
+export type SourceType = 'text' | 'whatsapp' | 'image' | 'audio' | 'pdf' | 'github_repo';
+export type PromptTarget = 'generic' | 'claude_code' | 'cursor' | 'github_copilot';
 export type JobStatus = 'queued' | 'processing' | 'completed' | 'failed';
 export type ChangeClassification = 'already_covered' | 'new_requirement' | 'contradiction' | 'unclear';
 export type DiagramType = 'architecture' | 'sequence' | 'er' | 'component' | 'requirements';
@@ -33,8 +34,14 @@ export interface Source {
   metadata_json?: { needs_me?: boolean; [key: string]: unknown } | null;
 }
 
+export interface ChunkLocation {
+  file_path: string;
+  start_line: number;
+  end_line: number;
+}
+
 export interface SourceDetail extends Source {
-  chunks: Array<{ id: string; units_json: EvidenceChunkMessage[] }>;
+  chunks: Array<{ id: string; units_json: EvidenceChunkMessage[]; location_json?: ChunkLocation | null }>;
 }
 
 export interface Job {
@@ -150,6 +157,17 @@ export interface HealthStatus {
   fts5: boolean;
   privacy: string;
   error: string | null;
+}
+
+export interface ImplementationPrompt {
+  prompt: string;
+  target: PromptTarget;
+  affected_files: ChunkLocation[];
+}
+
+export interface NotionExportResult {
+  page_id: string;
+  url: string;
 }
 
 export interface DemoSeedResult {

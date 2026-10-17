@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, Loader2, Printer, X } from 'lucide-react';
+import { Check, Loader2, Printer, Terminal, X } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,11 +10,13 @@ import { Separator } from '@/components/ui/separator';
 import { api } from '@/lib/api';
 import { evidenceBadge, itemTypeLabel, riskBadge } from '@/lib/badges';
 import { EvidenceQuote } from './EvidenceQuote';
+import { ImplementationPromptDialog } from './ImplementationPromptDialog';
 import type { ApprovalStatus, EvidenceStatus, ItemType, LedgerItemDetail, RiskLevel } from '@/lib/types';
 
 function ItemDetailContent({ item, projectId }: { item: LedgerItemDetail; projectId: string }) {
   const queryClient = useQueryClient();
   const [description, setDescription] = useState(item.description);
+  const [promptDialogOpen, setPromptDialogOpen] = useState(false);
 
   const update = useMutation({
     mutationFn: (data: Parameters<typeof api.updateLedgerItem>[1]) => api.updateLedgerItem(item.id, data),
@@ -56,6 +58,10 @@ function ItemDetailContent({ item, projectId }: { item: LedgerItemDetail; projec
               Reset to needs review
             </Button>
           )}
+          <Button size="sm" variant="outline" onClick={() => setPromptDialogOpen(true)}>
+            <Terminal className="size-3.5" />
+            Implementation brief
+          </Button>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -148,6 +154,8 @@ function ItemDetailContent({ item, projectId }: { item: LedgerItemDetail; projec
           </>
         )}
       </div>
+
+      <ImplementationPromptDialog itemId={item.id} open={promptDialogOpen} onOpenChange={setPromptDialogOpen} />
     </div>
   );
 }

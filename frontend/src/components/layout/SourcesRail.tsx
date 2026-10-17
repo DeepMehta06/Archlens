@@ -1,6 +1,6 @@
 import { useRef, useState, type DragEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { FileText, Image, AudioLines, Loader2, MessageCircle, Paperclip, UploadCloud } from 'lucide-react';
+import { FileText, Image, AudioLines, FolderGit2, Loader2, MessageCircle, Paperclip, UploadCloud } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { ACCEPT_ATTR, SUPPORTED_HINT, UPLOAD_TOOLTIP } from '@/lib/uploads';
 import { useSourceUpload } from '@/components/sources/useSourceUpload';
 import { NeedsMeDialog } from '@/components/sources/NeedsMeDialog';
+import { GithubConnectDialog } from '@/components/sources/GithubConnectDialog';
 import type { SourceStatus, SourceType } from '@/lib/types';
 
 const STATUS_BADGE: Record<SourceStatus, { label: string; variant: 'verified' | 'caution' | 'danger' | 'outline' }> = {
@@ -22,6 +23,7 @@ function sourceIcon(type: SourceType) {
   if (type === 'whatsapp') return MessageCircle;
   if (type === 'image') return Image;
   if (type === 'audio') return AudioLines;
+  if (type === 'github_repo') return FolderGit2;
   return FileText;
 }
 
@@ -32,9 +34,10 @@ export function SourcesRail({ projectId }: { projectId: string }) {
     refetchInterval: 4000,
   });
 
-  const { uploadFiles, uploading, needsMeSource, resolveNeedsMe, dismissNeedsMe } = useSourceUpload(projectId);
+  const { uploadFiles, connectGithub, uploading, needsMeSource, resolveNeedsMe, dismissNeedsMe } = useSourceUpload(projectId);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [githubDialogOpen, setGithubDialogOpen] = useState(false);
 
   const handleFiles = (files: FileList | null) => {
     if (files && files.length > 0) uploadFiles(files);
@@ -73,9 +76,14 @@ export function SourcesRail({ projectId }: { projectId: string }) {
           <h2 className="text-sm font-semibold text-ink">Sources</h2>
           <p className="mt-0.5 text-xs text-ink-soft">What the ledger is built from</p>
         </div>
-        <Button size="icon-sm" variant="ghost" onClick={() => fileInputRef.current?.click()} disabled={uploading} aria-label="Add source" title={UPLOAD_TOOLTIP}>
-          {uploading ? <Loader2 className="size-4 animate-spin" /> : <Paperclip className="size-4" />}
-        </Button>
+        <div className="flex items-center gap-0.5">
+          <Button size="icon-sm" variant="ghost" onClick={() => fileInputRef.current?.click()} disabled={uploading} aria-label="Add source" title={UPLOAD_TOOLTIP}>
+            {uploading ? <Loader2 className="size-4 animate-spin" /> : <Paperclip className="size-4" />}
+          </Button>
+          <Button size="icon-sm" variant="ghost" onClick={() => setGithubDialogOpen(true)} aria-label="Connect GitHub repo" title="Connect a GitHub repo (read-only, for implementation briefs)">
+            <FolderGit2 className="size-4" />
+          </Button>
+        </div>
       </div>
 
       <ScrollArea className="flex-1 px-3 pb-4">
@@ -117,6 +125,7 @@ export function SourcesRail({ projectId }: { projectId: string }) {
       </ScrollArea>
 
       <NeedsMeDialog source={needsMeSource} onResolve={resolveNeedsMe} onDismiss={dismissNeedsMe} />
+      <GithubConnectDialog open={githubDialogOpen} onOpenChange={setGithubDialogOpen} onConnect={connectGithub} />
     </aside>
   );
 }

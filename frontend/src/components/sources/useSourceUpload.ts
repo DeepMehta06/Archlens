@@ -89,6 +89,24 @@ export function useSourceUpload(projectId: string) {
     [uploadFile],
   );
 
+  const connectGithub = useCallback(
+    async (repo: string, ref?: string) => {
+      setActiveCount((n) => n + 1);
+      const toastId = toast.loading(`Connecting ${repo}…`);
+      try {
+        const { source, job } = await api.connectGithubSource(projectId, { repo, ref: ref || undefined });
+        invalidate();
+        pollJob(job.id, source, toastId);
+        return true;
+      } catch (err) {
+        setActiveCount((n) => Math.max(0, n - 1));
+        toast.error(err instanceof ApiError ? err.message : 'Could not connect that repo.', { id: toastId });
+        return false;
+      }
+    },
+    [projectId, invalidate, pollJob],
+  );
+
   const resolveNeedsMe = useCallback(
     async (me: string) => {
       if (!needsMeSource) return;
@@ -108,6 +126,7 @@ export function useSourceUpload(projectId: string) {
   return {
     uploadFile,
     uploadFiles,
+    connectGithub,
     uploading: activeCount > 0,
     activeCount,
     needsMeSource,

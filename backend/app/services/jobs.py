@@ -3,6 +3,7 @@ from typing import Any, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from app.database import retry_on_locked
 from app.enums import JobStatus, SourceStatus
 from app.models import Job, Source
 
@@ -26,7 +27,7 @@ async def update_job(
     error: Optional[str] = None,
     result: Optional[dict[str, Any]] = None,
 ) -> None:
-    async with session_factory() as session:
+    async def _apply(session: AsyncSession) -> None:
         job = await session.get(Job, job_id)
         if job is None:
             return
@@ -40,16 +41,18 @@ async def update_job(
             job.error_message = error
         if result is not None:
             job.result_json = result
-        await session.commit()
+
+    await retry_on_locked(session_factory, _apply)
 
 
 async def fail_source_and_job(
     session_factory: async_sessionmaker[AsyncSession], source_id: str, job_id: str, message: str
 ) -> None:
-    async with session_factory() as session:
+    async def _apply(session: AsyncSession) -> None:
         source = await session.get(Source, source_id)
         if source is not None:
             source.status = SourceStatus.FAILED
             source.error_message = message
-            await session.commit()
+
+    await retry_on_locked(session_factory, _apply)
     await update_job(session_factory, job_id, status=JobStatus.FAILED, stage="failed", error=message)

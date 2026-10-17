@@ -1,18 +1,39 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, PanelLeft, PanelRight } from 'lucide-react';
+import { Download, ExternalLink, Loader2, PanelLeft, PanelRight } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { SourcesRail } from './SourcesRail';
 import { WorkspacePanel } from './WorkspacePanel';
 import { ChatPanel } from '@/components/chat/ChatPanel';
-import { api } from '@/lib/api';
+import { api, ApiError } from '@/lib/api';
 import type { Project } from '@/lib/types';
 import logo from '@/assets/archlens-logo.png';
 
 export function AppShell({ project }: { project: Project }) {
   const [railOpen, setRailOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [exportingNotion, setExportingNotion] = useState(false);
+
+  const exportToNotion = async () => {
+    setExportingNotion(true);
+    try {
+      const result = await api.exportNotion(project.id);
+      toast.success('Exported to Notion', {
+        description: 'Open the page',
+        action: { label: 'Open', onClick: () => window.open(result.url, '_blank') },
+      });
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 501) {
+        toast.error('Notion isn’t configured on this server yet.');
+      } else {
+        toast.error(err instanceof ApiError ? err.message : 'Could not export to Notion.');
+      }
+    } finally {
+      setExportingNotion(false);
+    }
+  };
 
   const handleSourceAdded = () => {
     // sources rail polls on its own; nothing else needed here
@@ -34,6 +55,10 @@ export function AppShell({ project }: { project: Project }) {
           <Button size="sm" variant="outline" onClick={() => window.open(api.exportUrl(project.id), '_blank')} title="Opens the scope brief as Markdown — use your browser's print dialog to save it as PDF">
             <Download className="size-3.5" />
             <span className="hidden sm:inline">Export</span>
+          </Button>
+          <Button size="sm" variant="outline" onClick={exportToNotion} disabled={exportingNotion} title="Export the scope brief to Notion">
+            {exportingNotion ? <Loader2 className="size-3.5 animate-spin" /> : <ExternalLink className="size-3.5" />}
+            <span className="hidden sm:inline">Notion</span>
           </Button>
           <Button size="icon-sm" variant="ghost" className="xl:hidden" onClick={() => setPanelOpen(true)} aria-label="Show workspace">
             <PanelRight className="size-4" />
